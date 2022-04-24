@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>BeagleBone Black 从零到一 (1 启动流程) | TinyX</title>
+<meta name="keywords" content="BeagleBone">
+<meta name="description" content="BeagleBone 的核心处理器是 AM3358，理解启动过程需要查看相应的数据手册。
+AM335x 有四个不同的启动阶段：
+ ROM SPL（Secondary Program Loader） U-BOOT Linux Kernel  为什么 AM335x 有多个启动阶段呢？直接从启动源加载 U-Boot 启动不是很方便？
+首先，第一步的 ROM Code 不可能太复杂，ROM大小是一个限制，最重要的还是因为其所能获取的系统信息太少，所以处理器只能使用简单的方法去寻找能完成复杂功能的代码，而后将处理器初始化工作交给它来完成。其次，SPL 也不能很复杂，因为 ROM Code 只能将它加载到处理器内部 RAM 中运行，一般处理器的内部 RAM 都要小于128KB，其大小注定其不能完成很复杂的功能，所以 SPL 需要初始化 DDR 再加更复杂的代码加载到 DDR 中运行。到了在 DDR RAM 中执行的 Bootloader（U-Boot算一个），其功能就比较完善了，此时就可以启动操作系统了。
+第一阶段：ROM Code ROM Code 是芯片上电复位之后第一块自动运行的代码。ROM Code 固化在芯片中不能被用户修改。 ROM Code 存储在片上地址 0x40000000-0x40040000 处。
+ROM Code 有两个主要的功能：
+ 配置设备并初始化主要的外设 建立堆栈 配置开门狗定时器1（设置到三分钟） 配置 PLL 和系统时钟 为下一阶段启动做准备 为下一阶段启动检查启动源（SPL） 把下一启动阶段的 bootloader 代码移动到内存中准备运行  ROM Code 针对不同的启动源有不同的启动过程，但最终还是为了把启动源的代码搬运至内部 RAM 中运行，这里我们主要解析下针对 MMC/SD 卡设备，它的启动过程是怎么样的。">
+<meta name="author" content="X">
+<link rel="canonical" href="https://tinyx.me/post/BBB-bootmode/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.min.48a18943c2fc15c38a372b8dde1f5e5dc0bc64fa6cb90f5a817d2f8c76b7f3ae.css" integrity="sha256-SKGJQ8L8FcOKNyuN3h9eXcC8ZPpsuQ9agX0vjHa3864=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.min.4dcb3c4f38462f66c6b6137227726f5543cb934cca9788f041c087e374491df2.js" integrity="sha256-Tcs8TzhGL2bGthNyJ3JvVUPLk0zKl4jwQcCH43RJHfI="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:title" content="BeagleBone Black 从零到一 (1 启动流程)" />
+<meta property="og:description" content="BeagleBone 的核心处理器是 AM3358，理解启动过程需要查看相应的数据手册。
+AM335x 有四个不同的启动阶段：
+ ROM SPL（Secondary Program Loader） U-BOOT Linux Kernel  为什么 AM335x 有多个启动阶段呢？直接从启动源加载 U-Boot 启动不是很方便？
+首先，第一步的 ROM Code 不可能太复杂，ROM大小是一个限制，最重要的还是因为其所能获取的系统信息太少，所以处理器只能使用简单的方法去寻找能完成复杂功能的代码，而后将处理器初始化工作交给它来完成。其次，SPL 也不能很复杂，因为 ROM Code 只能将它加载到处理器内部 RAM 中运行，一般处理器的内部 RAM 都要小于128KB，其大小注定其不能完成很复杂的功能，所以 SPL 需要初始化 DDR 再加更复杂的代码加载到 DDR 中运行。到了在 DDR RAM 中执行的 Bootloader（U-Boot算一个），其功能就比较完善了，此时就可以启动操作系统了。
+第一阶段：ROM Code ROM Code 是芯片上电复位之后第一块自动运行的代码。ROM Code 固化在芯片中不能被用户修改。 ROM Code 存储在片上地址 0x40000000-0x40040000 处。
+ROM Code 有两个主要的功能：
+ 配置设备并初始化主要的外设 建立堆栈 配置开门狗定时器1（设置到三分钟） 配置 PLL 和系统时钟 为下一阶段启动做准备 为下一阶段启动检查启动源（SPL） 把下一启动阶段的 bootloader 代码移动到内存中准备运行  ROM Code 针对不同的启动源有不同的启动过程，但最终还是为了把启动源的代码搬运至内部 RAM 中运行，这里我们主要解析下针对 MMC/SD 卡设备，它的启动过程是怎么样的。" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tinyx.me/post/BBB-bootmode/" /><meta property="og:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-03-09T19:56:06&#43;00:00" />
+<meta property="article:modified_time" content="2016-03-09T19:56:06&#43;00:00" /><meta property="og:site_name" content="ExampleSite" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/>
+
+<meta name="twitter:title" content="BeagleBone Black 从零到一 (1 启动流程)"/>
+<meta name="twitter:description" content="BeagleBone 的核心处理器是 AM3358，理解启动过程需要查看相应的数据手册。
+AM335x 有四个不同的启动阶段：
+ ROM SPL（Secondary Program Loader） U-BOOT Linux Kernel  为什么 AM335x 有多个启动阶段呢？直接从启动源加载 U-Boot 启动不是很方便？
+首先，第一步的 ROM Code 不可能太复杂，ROM大小是一个限制，最重要的还是因为其所能获取的系统信息太少，所以处理器只能使用简单的方法去寻找能完成复杂功能的代码，而后将处理器初始化工作交给它来完成。其次，SPL 也不能很复杂，因为 ROM Code 只能将它加载到处理器内部 RAM 中运行，一般处理器的内部 RAM 都要小于128KB，其大小注定其不能完成很复杂的功能，所以 SPL 需要初始化 DDR 再加更复杂的代码加载到 DDR 中运行。到了在 DDR RAM 中执行的 Bootloader（U-Boot算一个），其功能就比较完善了，此时就可以启动操作系统了。
+第一阶段：ROM Code ROM Code 是芯片上电复位之后第一块自动运行的代码。ROM Code 固化在芯片中不能被用户修改。 ROM Code 存储在片上地址 0x40000000-0x40040000 处。
+ROM Code 有两个主要的功能：
+ 配置设备并初始化主要的外设 建立堆栈 配置开门狗定时器1（设置到三分钟） 配置 PLL 和系统时钟 为下一阶段启动做准备 为下一阶段启动检查启动源（SPL） 把下一启动阶段的 bootloader 代码移动到内存中准备运行  ROM Code 针对不同的启动源有不同的启动过程，但最终还是为了把启动源的代码搬运至内部 RAM 中运行，这里我们主要解析下针对 MMC/SD 卡设备，它的启动过程是怎么样的。"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Posts",
+      "item": "https://tinyx.me/post/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "BeagleBone Black 从零到一 (1 启动流程)",
+      "item": "https://tinyx.me/post/BBB-bootmode/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "BeagleBone Black 从零到一 (1 启动流程)",
+  "name": "BeagleBone Black 从零到一 (1 启动流程)",
+  "description": "BeagleBone 的核心处理器是 AM3358，理解启动过程需要查看相应的数据手册。\nAM335x 有四个不同的启动阶段：\n ROM SPL（Secondary Program Loader） U-BOOT Linux Kernel  为什么 AM335x 有多个启动阶段呢？直接从启动源加载 U-Boot 启动不是很方便？\n首先，第一步的 ROM Code 不可能太复杂，ROM大小是一个限制，最重要的还是因为其所能获取的系统信息太少，所以处理器只能使用简单的方法去寻找能完成复杂功能的代码，而后将处理器初始化工作交给它来完成。其次，SPL 也不能很复杂，因为 ROM Code 只能将它加载到处理器内部 RAM 中运行，一般处理器的内部 RAM 都要小于128KB，其大小注定其不能完成很复杂的功能，所以 SPL 需要初始化 DDR 再加更复杂的代码加载到 DDR 中运行。到了在 DDR RAM 中执行的 Bootloader（U-Boot算一个），其功能就比较完善了，此时就可以启动操作系统了。\n第一阶段：ROM Code ROM Code 是芯片上电复位之后第一块自动运行的代码。ROM Code 固化在芯片中不能被用户修改。 ROM Code 存储在片上地址 0x40000000-0x40040000 处。\nROM Code 有两个主要的功能：\n 配置设备并初始化主要的外设 建立堆栈 配置开门狗定时器1（设置到三分钟） 配置 PLL 和系统时钟 为下一阶段启动做准备 为下一阶段启动检查启动源（SPL） 把下一启动阶段的 bootloader 代码移动到内存中准备运行  ROM Code 针对不同的启动源有不同的启动过程，但最终还是为了把启动源的代码搬运至内部 RAM 中运行，这里我们主要解析下针对 MMC/SD 卡设备，它的启动过程是怎么样的。",
+  "keywords": [
+    "BeagleBone"
+  ],
+  "articleBody": "BeagleBone 的核心处理器是 AM3358，理解启动过程需要查看相应的数据手册。\nAM335x 有四个不同的启动阶段：\n ROM SPL（Secondary Program Loader） U-BOOT Linux Kernel  为什么 AM335x 有多个启动阶段呢？直接从启动源加载 U-Boot 启动不是很方便？\n首先，第一步的 ROM Code 不可能太复杂，ROM大小是一个限制，最重要的还是因为其所能获取的系统信息太少，所以处理器只能使用简单的方法去寻找能完成复杂功能的代码，而后将处理器初始化工作交给它来完成。其次，SPL 也不能很复杂，因为 ROM Code 只能将它加载到处理器内部 RAM 中运行，一般处理器的内部 RAM 都要小于128KB，其大小注定其不能完成很复杂的功能，所以 SPL 需要初始化 DDR 再加更复杂的代码加载到 DDR 中运行。到了在 DDR RAM 中执行的 Bootloader（U-Boot算一个），其功能就比较完善了，此时就可以启动操作系统了。\n第一阶段：ROM Code ROM Code 是芯片上电复位之后第一块自动运行的代码。ROM Code 固化在芯片中不能被用户修改。 ROM Code 存储在片上地址 0x40000000-0x40040000 处。\nROM Code 有两个主要的功能：\n 配置设备并初始化主要的外设 建立堆栈 配置开门狗定时器1（设置到三分钟） 配置 PLL 和系统时钟 为下一阶段启动做准备 为下一阶段启动检查启动源（SPL） 把下一启动阶段的 bootloader 代码移动到内存中准备运行  ROM Code 针对不同的启动源有不同的启动过程，但最终还是为了把启动源的代码搬运至内部 RAM 中运行，这里我们主要解析下针对 MMC/SD 卡设备，它的启动过程是怎么样的。\n 初始化 MMC/SD 驱动 检测是内存还是SD卡 配置地址 判断存储设备是 RAW 模式还是 FAT 模式 如果是 RAW 模式就按照 参考手册 Table 26-20 所定义的地址搬运代码至内部 RAM 中 如果是 FAT 模式，就读取主引导记录并读取启动扇区查找 MLO 文件，并搬运到 RAM 中执行  具体见参考手册第二十六章。\n第二阶段：SPL 第二阶段叫做 SPL，但有些时候也叫 MLO。SPL 是启动 U-Boot 前的一个阶段，并且必须从 启动源（MMC、USB、SD、UART等）加载到内部 RAM 中。SPL 只有极少的功能，SPL 主要的职责就是初始化 DDR，时钟等最小系统，以读取 U-Boot 并加载到 DDR 中。\nMLO 文件是从哪来的呢？\n在编译 U-boot 的时候也会生成相应目标板的 MLO 文件，好像老版本的 U-boot 没有这功能，具体请看另外一篇文章。\n第三阶段：U-Boot U-boot 主要的工作就是正确加载 Kernel。和 SPL 类似，U-boot 也是要加载下一个阶段的 image,但是 U-Boot 提供了更多外设的支持和更多的调试工具。所以，U-Boot 也要进行各个模块的配置，上述 SPL 配置的部分，除了 DDR 外，U-Boot 也会根据需求重新配置（这里重置主要是U-Boot 是一个开源工程，其要兼容某些特殊的芯片，从而需要做重载）。此外，U-Boot 也会对网口，SD卡等根据需求进行配置。 完成配置后，U-Boot 会从相应的存储器或者外设读取 Kernel，并传递参数给 Kernel，运行 Kernel。\nU-Boot 允许用户通过串行终端在内核启动环境中做一些强大的基于命令的控制。用户可以控制很多启动参数和内核启动命令。另外 U-Boot 环境变量是可配置的，这些变量保存在存储媒介的 uEnv.txt 中。 更多内容可以查看 AM335x U-Boot 用户指南。\n第四阶段：启动 Linux 内核 uImage 是与描述内核头信息交换过的内核镜像。这个头信息是一个 64kB的信息块，包含了目标架构、操作系统、内核尺寸、入口等信息。U-boot 启动 uImage的时候，头信息会在命令行输出。\n在读出头文件之后，U-Boot 开始启动 Linux 内核。\n其他 AM335x 能从不同的源启动：MMC/SD，NAND，NOR，UART，ETHERNET，USB，SPI和I2C。能从哪个源启动由启动阶段决定。比如，SPL／U-Boot 只能从能被 ROM Code 识别的源启动。 ROM 和 SPL bootloader在内部 RAM 中运行，U-boot 和内核在 DDR 中运行。 更多信息可以看《技术参考指南》的第二章。\nBeagleBone 启动 BBB 板子上的 AM3335x 处理器上可以通过配置选择不同的接口启动，如数据手册 第二十六章所写。BBB 通过 S2 这个按键选择不同的启动顺序，默认情况下（S2 没有按下）启动过程如下：\n MMC1（板载 eMMC） MMC0（microSD） UART0 USB0  如果按下 S2 按钮，启动过程如下：\n SPI0 MMC0（microSD） UART0 USB0   ",
+  "wordCount" : "210",
+  "inLanguage": "en",
+  "datePublished": "2016-03-09T19:56:06Z",
+  "dateModified": "2016-03-09T19:56:06Z",
+  "author":{
+    "@type": "Person",
+    "name": "X"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tinyx.me/post/BBB-bootmode/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TinyX",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tinyx.me/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://tinyx.me" accesskey="h" title="TinyX 👾 (Alt + H)">TinyX 👾</a>
+            <span class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </span>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://tinyx.me/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://tinyx.me">Home</a>&nbsp;»&nbsp;<a href="https://tinyx.me/post/">Posts</a></div>
+    <h1 class="post-title">
+      BeagleBone Black 从零到一 (1 启动流程)
+    </h1>
+    <div class="post-meta"><span title='2016-03-09 19:56:06 +0000 UTC'>March 9, 2016</span>&nbsp;·&nbsp;X
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e7%ac%ac%e4%b8%80%e9%98%b6%e6%ae%b5rom-code" aria-label="第一阶段：ROM Code">第一阶段：ROM Code</a></li>
+                <li>
+                    <a href="#%e7%ac%ac%e4%ba%8c%e9%98%b6%e6%ae%b5spl" aria-label="第二阶段：SPL">第二阶段：SPL</a></li>
+                <li>
+                    <a href="#%e7%ac%ac%e4%b8%89%e9%98%b6%e6%ae%b5u-boot" aria-label="第三阶段：U-Boot">第三阶段：U-Boot</a></li>
+                <li>
+                    <a href="#%e7%ac%ac%e5%9b%9b%e9%98%b6%e6%ae%b5%e5%90%af%e5%8a%a8-linux-%e5%86%85%e6%a0%b8" aria-label="第四阶段：启动 Linux 内核">第四阶段：启动 Linux 内核</a></li>
+                <li>
+                    <a href="#%e5%85%b6%e4%bb%96" aria-label="其他">其他</a></li>
+                <li>
+                    <a href="#beaglebone-%e5%90%af%e5%8a%a8" aria-label="BeagleBone 启动">BeagleBone 启动</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>BeagleBone 的核心处理器是 AM3358，理解启动过程需要查看相应的数据手册。</p>
+<p>AM335x 有<a href="http://processors.wiki.ti.com/index.php/The_Boot_Process">四个不同的启动阶段</a>：</p>
+<ol>
+<li>ROM</li>
+<li>SPL（Secondary Program Loader）</li>
+<li>U-BOOT</li>
+<li>Linux Kernel</li>
+</ol>
+<p><strong>为什么 AM335x 有多个启动阶段呢？直接从启动源加载 U-Boot 启动不是很方便？</strong></p>
+<!-- raw HTML omitted -->
+<p>首先，第一步的 ROM Code 不可能太复杂，ROM大小是一个限制，最重要的还是因为其所能获取的系统信息太少，所以处理器只能使用简单的方法去寻找能完成复杂功能的代码，而后将处理器初始化工作交给它来完成。其次，SPL 也不能很复杂，因为 ROM Code 只能将它加载到处理器内部 RAM 中运行，一般处理器的内部 RAM 都要小于128KB，其大小注定其不能完成很复杂的功能，所以 SPL 需要初始化 DDR 再加更复杂的代码加载到 DDR 中运行。到了在 DDR RAM 中执行的 Bootloader（U-Boot算一个），其功能就比较完善了，此时就可以启动操作系统了。</p>
+<h2 id="第一阶段rom-code">第一阶段：ROM Code<a hidden class="anchor" aria-hidden="true" href="#第一阶段rom-code">#</a></h2>
+<p>ROM Code 是芯片上电复位之后第一块自动运行的代码。ROM Code 固化在芯片中不能被用户修改。
+ROM Code 存储在片上地址 <code>0x40000000-0x40040000</code> 处。</p>
+<p><img loading="lazy" src="memoryMap.png" alt="P3"  />
+</p>
+<p>ROM Code 有两个主要的功能：</p>
+<ul>
+<li>配置设备并初始化主要的外设</li>
+<li>建立堆栈</li>
+<li>配置开门狗定时器1（设置到三分钟）</li>
+<li>配置 PLL 和系统时钟</li>
+<li>为下一阶段启动做准备</li>
+<li>为下一阶段启动检查启动源（SPL）</li>
+<li>把下一启动阶段的 bootloader 代码移动到内存中准备运行</li>
+</ul>
+<p>ROM Code 针对不同的启动源有不同的启动过程，但最终还是为了把启动源的代码搬运至内部 RAM 中运行，这里我们主要解析下针对 MMC/SD 卡设备，它的启动过程是怎么样的。</p>
+<ol>
+<li>初始化 MMC/SD 驱动</li>
+<li>检测是内存还是SD卡</li>
+<li>配置地址</li>
+<li>判断存储设备是 RAW 模式还是 FAT 模式</li>
+<li>如果是 RAW 模式就按照 参考手册 Table 26-20 所定义的地址搬运代码至内部 RAM 中</li>
+<li>如果是 FAT 模式，就读取主引导记录并读取启动扇区查找 MLO 文件，并搬运到 RAM 中执行</li>
+</ol>
+<p><img loading="lazy" src="bootingFigure.png" alt="P4"  />
+</p>
+<p>具体见参考手册第二十六章。</p>
+<h2 id="第二阶段spl">第二阶段：SPL<a hidden class="anchor" aria-hidden="true" href="#第二阶段spl">#</a></h2>
+<p>第二阶段叫做 SPL，但有些时候也叫 MLO。SPL 是启动 U-Boot 前的一个阶段，并且必须从 启动源（MMC、USB、SD、UART等）加载到内部 RAM 中。SPL 只有极少的功能，SPL 主要的职责就是初始化 DDR，时钟等最小系统，以读取 U-Boot 并加载到 DDR 中。</p>
+<p><strong>MLO 文件是从哪来的呢？</strong></p>
+<p>在编译 U-boot 的时候也会生成相应目标板的 MLO 文件，好像老版本的 U-boot 没有这功能，具体请看另外一篇文章。</p>
+<h2 id="第三阶段u-boot">第三阶段：U-Boot<a hidden class="anchor" aria-hidden="true" href="#第三阶段u-boot">#</a></h2>
+<p>U-boot 主要的工作就是正确加载 Kernel。和 SPL 类似，U-boot 也是要加载下一个阶段的 image,但是 U-Boot 提供了更多外设的支持和更多的调试工具。所以，U-Boot 也要进行各个模块的配置，上述 SPL 配置的部分，除了 DDR 外，U-Boot 也会根据需求重新配置（这里重置主要是U-Boot 是一个开源工程，其要兼容某些特殊的芯片，从而需要做重载）。此外，U-Boot 也会对网口，SD卡等根据需求进行配置。
+完成配置后，U-Boot 会从相应的存储器或者外设读取 Kernel，并传递参数给 Kernel，运行 Kernel。</p>
+<p>U-Boot 允许用户通过串行终端在内核启动环境中做一些强大的基于命令的控制。用户可以控制很多启动参数和内核启动命令。另外 U-Boot 环境变量是可配置的，这些变量保存在存储媒介的 <code>uEnv.txt</code> 中。
+更多内容可以查看 <a href="http://processors.wiki.ti.com/index.php/AM335x_U-Boot_User's_Guide">AM335x U-Boot 用户指南</a>。</p>
+<h2 id="第四阶段启动-linux-内核">第四阶段：启动 Linux 内核<a hidden class="anchor" aria-hidden="true" href="#第四阶段启动-linux-内核">#</a></h2>
+<p>uImage 是与描述内核头信息交换过的内核镜像。这个头信息是一个 64kB的信息块，包含了目标架构、操作系统、内核尺寸、入口等信息。U-boot 启动 uImage的时候，头信息会在命令行输出。</p>
+<p><img loading="lazy" src="UImage.png" alt="P1"  />
+</p>
+<p>在读出头文件之后，U-Boot 开始启动 Linux 内核。</p>
+<h2 id="其他">其他<a hidden class="anchor" aria-hidden="true" href="#其他">#</a></h2>
+<p>AM335x 能从不同的源启动：MMC/SD，NAND，NOR，UART，ETHERNET，USB，SPI和I2C。能从哪个源启动由启动阶段决定。比如，SPL／U-Boot 只能从能被 ROM Code 识别的源启动。
+ROM 和 SPL bootloader在内部 RAM 中运行，U-boot 和内核在 DDR 中运行。
+更多信息可以看《技术参考指南》的第二章。</p>
+<p><img loading="lazy" src="BOOT_PROCESS_STAGES.png" alt="P2"  />
+</p>
+<h2 id="beaglebone-启动">BeagleBone 启动<a hidden class="anchor" aria-hidden="true" href="#beaglebone-启动">#</a></h2>
+<p>BBB 板子上的 AM3335x 处理器上可以通过配置选择不同的接口启动，如<a href="http://www.ti.com/lit/ug/spruh73m/spruh73m.pdf">数据手册</a> 第二十六章所写。BBB 通过 S2 这个按键选择不同的启动顺序，默认情况下（S2 没有按下）启动过程如下：</p>
+<ol>
+<li>MMC1（板载 eMMC）</li>
+<li>MMC0（microSD）</li>
+<li>UART0</li>
+<li>USB0</li>
+</ol>
+<p>如果按下 S2 按钮，启动过程如下：</p>
+<ol>
+<li>SPI0</li>
+<li>MMC0（microSD）</li>
+<li>UART0</li>
+<li>USB0</li>
+</ol>
+<hr>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://tinyx.me/tags/BeagleBone/">BeagleBone</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://tinyx.me/post/BBB-Uboot/">
+    <span class="title">« Prev Page</span>
+    <br>
+    <span>BeagleBone Black 从零到一 (2 MLO、U-Boot)</span>
+  </a>
+  <a class="next" href="https://tinyx.me/post/BBB0-Hardware/">
+    <span class="title">Next Page »</span>
+    <br>
+    <span>BeagleBone Black 从零到一 (0 硬件及环境搭建)</span>
+  </a>
+</nav>
+
+  </footer><div id="utter-container"></div>
+  <script src="https://utteranc.es/client.js"
+      repo= 'JesseGuoX/hugoblogtalks'
+      issue-term= "pathname"
+      theme= ''
+      crossorigin= "anonymous"
+      async>
+  </script>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2022 <a href="https://tinyx.me">TinyX</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

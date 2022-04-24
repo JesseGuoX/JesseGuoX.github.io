@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>EtherCAT on TinyX</title>
+    <link>https://tinyx.me/tags/EtherCAT/</link>
+    <description>Recent content in EtherCAT on TinyX</description>
+    <image>
+      <url>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 10 Jan 2016 14:51:58 +0000</lastBuildDate><atom:link href="https://tinyx.me/tags/EtherCAT/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>EtherCAT 基础知识汇总</title>
+      <link>https://tinyx.me/post/EtherCAT-Note/</link>
+      <pubDate>Sun, 10 Jan 2016 14:51:58 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/EtherCAT-Note/</guid>
+      <description>&lt;h2 id=&#34;特性&#34;&gt;特性&lt;/h2&gt;
+&lt;p&gt;EtherCAT（以太网控制自动化技术）是一个以以太网为基础的开放架构的现场总线系统，EtherCAT名称中的CAT为Control Automation Technology（控制自动化技术）首字母的缩写。最初由德国倍福自动化有限公司(Beckhoff Automation GmbH) 研发。EtherCAT为系统的实时性能和拓扑的灵活性树立了新的标准，同时，它还符合甚至降低了现场总线的使用成本。EtherCAT的特点还包括高精度设备同步，可选线缆冗余，和功能性安全协议(SIL3)。&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;</description>
+    </item>
+    
+    <item>
+      <title>利用 TwinCAT 3 搭建 EtherCAT 主站环境</title>
+      <link>https://tinyx.me/post/Setup-TwinCat/</link>
+      <pubDate>Wed, 06 Jan 2016 19:28:08 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/Setup-TwinCat/</guid>
+      <description>&lt;h2 id=&#34;环境&#34;&gt;环境&lt;/h2&gt;
+&lt;p&gt;网络上很多都是使用的 TwinCAT 2 和 WireShark 1.4 来建立主站程序并捕捉 EtherCAT 数据，这里做个新版本的教程，新的软件较旧软件使用方便。&lt;/p&gt;
+&lt;h3 id=&#34;软件&#34;&gt;软件&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.beckhoff.com/english/download/tc3-download-xae.htm?id=1948695119487514&#34;&gt;TwinCAT 3.1 – eXtended Automation Engineering (XAE) &lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.wireshark.org/#download&#34;&gt;WireShark 2&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;硬件&#34;&gt;硬件&lt;/h3&gt;
+&lt;p&gt;PC利用 TwinCAT 作为主站，从站采用的是基于 ET1100 的从站开发板。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

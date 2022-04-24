@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>U-Boot on TinyX</title>
+    <link>https://tinyx.me/tags/U-Boot/</link>
+    <description>Recent content in U-Boot on TinyX</description>
+    <image>
+      <url>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Tue, 22 Mar 2016 20:57:50 +0000</lastBuildDate><atom:link href="https://tinyx.me/tags/U-Boot/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>BeagleBone Black 从零到一 (2 MLO、U-Boot)</title>
+      <link>https://tinyx.me/post/BBB-Uboot/</link>
+      <pubDate>Tue, 22 Mar 2016 20:57:50 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/BBB-Uboot/</guid>
+      <description>更新：2016-04-01
+什么是 U-Boot 熟悉嵌入式开发的应该都听过它，U-boot 就是启动系统前的一段引导程序，虽然是引导程序，但是功能非常强大。
+这一篇主要讲解如何从无到有运行 U-Boot，关于 U-Boot 引导 Linux 的部分放在另外一篇文章讲解。
+U-Boot 之前的版本以版本号命名如：0.1.0, 0.2.0 这几年改为了以时间和日期命名：U-Boot 2016.03。
+使用 git 获得 U-Boot 的源码：
+git clone git://git.denx.de/u-boot.git 目前我使用的是 2016.02 的版本。
+MLO 及其启动过程 上一篇文章，我们了解了 BeagleBone 有个 SPL 过程，就在这个时候读取 MLO 文件，MLO 文件其实是个精简版的 U-Boot，也是由 U-Boot 生成，但是功能有限，只初始化了部分资源如 DDR，然后启动 U-Boot。
+MLO 文件是如何编译出来的 分析 MLO 的编译过程之前需要知道编译原理和 Makefile 等相关知识。 我们先找找 Makefile 看看能不能找到什么。建议使用 Sublime 编辑器。用全局查找功能查找 MLO 关键字。
+找到 u-boot/scripts/Makefile.spl 文件 117行：
+MLO MLO.byteswap: $(obj)/u-boot-spl.bin FORCE 	$(call if_changed,mkimage) 可以看到 MLO 文件是由 u-boot-spl.</description>
+    </item>
+    
+  </channel>
+</rss>

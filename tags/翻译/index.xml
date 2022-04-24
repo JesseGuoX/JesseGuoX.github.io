@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>翻译 on TinyX</title>
+    <link>https://tinyx.me/tags/%E7%BF%BB%E8%AF%91/</link>
+    <description>Recent content in 翻译 on TinyX</description>
+    <image>
+      <url>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Thu, 24 Dec 2015 15:29:00 +0000</lastBuildDate><atom:link href="https://tinyx.me/tags/%E7%BF%BB%E8%AF%91/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何解析 PROFINET 周期性数据帧</title>
+      <link>https://tinyx.me/post/decode-PROFINET-frames/</link>
+      <pubDate>Thu, 24 Dec 2015 15:29:00 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/decode-PROFINET-frames/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;原文：&lt;a href=&#34;https://kb.hilscher.com/pages/viewpage.action?pageId=22830458&#34;&gt;How to decode cyclic PROFINET frames?&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+&lt;h3 id=&#34;iops&#34;&gt;IOPS&lt;/h3&gt;
+&lt;p&gt;IO Provider Status
+表示 IO 数据的提供状态，
+用来标识数据是否有效，避免应用建立一个另外的诊断信息请求，节省资源。&lt;/p&gt;
+&lt;h3 id=&#34;iocs&#34;&gt;IOCS&lt;/h3&gt;
+&lt;p&gt;IO Consumer Status
+表示 IO 数据的消费状态。&lt;/p&gt;
+&lt;h3 id=&#34;如何理解iocs和iops&#34;&gt;如何理解IOCS和IOPS&lt;/h3&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

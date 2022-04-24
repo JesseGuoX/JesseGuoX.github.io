@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统) | TinyX</title>
+<meta name="keywords" content="BeagleBone, Linux">
+<meta name="description" content="基于 Linux 3.8
+内核启动 BeagleBone Black 从零到一 (1 MLO、U-Boot) 这篇文章里讲到 U-Boot 启动之后会运行 uEnv.txt 文件里面 uenvcmd 指代的命令，我们也通常把加载镜像文件等命令写在这里。
+U-Boot 有很多方法能启动内核，通常使用的是 bootm 或者 bootz 命令：
+U-Boot# help bootz bootz - boot Linux zImage image from memory  Usage: bootz [addr [initrd[:size]] [fdt]]  - boot Linux zImage stored in memory  The argument &#39;initrd&#39; is optional and specifies the address  of the initrd in memory. The optional argument &#39;:size&#39; allows  specifying the size of RAW initrd.">
+<meta name="author" content="X">
+<link rel="canonical" href="https://tinyx.me/post/BBB-Prepare-booting/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.min.48a18943c2fc15c38a372b8dde1f5e5dc0bc64fa6cb90f5a817d2f8c76b7f3ae.css" integrity="sha256-SKGJQ8L8FcOKNyuN3h9eXcC8ZPpsuQ9agX0vjHa3864=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.min.4dcb3c4f38462f66c6b6137227726f5543cb934cca9788f041c087e374491df2.js" integrity="sha256-Tcs8TzhGL2bGthNyJ3JvVUPLk0zKl4jwQcCH43RJHfI="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:title" content="BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)" />
+<meta property="og:description" content="基于 Linux 3.8
+内核启动 BeagleBone Black 从零到一 (1 MLO、U-Boot) 这篇文章里讲到 U-Boot 启动之后会运行 uEnv.txt 文件里面 uenvcmd 指代的命令，我们也通常把加载镜像文件等命令写在这里。
+U-Boot 有很多方法能启动内核，通常使用的是 bootm 或者 bootz 命令：
+U-Boot# help bootz bootz - boot Linux zImage image from memory  Usage: bootz [addr [initrd[:size]] [fdt]]  - boot Linux zImage stored in memory  The argument &#39;initrd&#39; is optional and specifies the address  of the initrd in memory. The optional argument &#39;:size&#39; allows  specifying the size of RAW initrd." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tinyx.me/post/BBB-Prepare-booting/" /><meta property="og:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-04-17T15:06:55&#43;00:00" />
+<meta property="article:modified_time" content="2016-04-17T15:06:55&#43;00:00" /><meta property="og:site_name" content="ExampleSite" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/>
+
+<meta name="twitter:title" content="BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)"/>
+<meta name="twitter:description" content="基于 Linux 3.8
+内核启动 BeagleBone Black 从零到一 (1 MLO、U-Boot) 这篇文章里讲到 U-Boot 启动之后会运行 uEnv.txt 文件里面 uenvcmd 指代的命令，我们也通常把加载镜像文件等命令写在这里。
+U-Boot 有很多方法能启动内核，通常使用的是 bootm 或者 bootz 命令：
+U-Boot# help bootz bootz - boot Linux zImage image from memory  Usage: bootz [addr [initrd[:size]] [fdt]]  - boot Linux zImage stored in memory  The argument &#39;initrd&#39; is optional and specifies the address  of the initrd in memory. The optional argument &#39;:size&#39; allows  specifying the size of RAW initrd."/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Posts",
+      "item": "https://tinyx.me/post/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)",
+      "item": "https://tinyx.me/post/BBB-Prepare-booting/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)",
+  "name": "BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)",
+  "description": "基于 Linux 3.8\n内核启动 BeagleBone Black 从零到一 (1 MLO、U-Boot) 这篇文章里讲到 U-Boot 启动之后会运行 uEnv.txt 文件里面 uenvcmd 指代的命令，我们也通常把加载镜像文件等命令写在这里。\nU-Boot 有很多方法能启动内核，通常使用的是 bootm 或者 bootz 命令：\nU-Boot# help bootz bootz - boot Linux zImage image from memory  Usage: bootz [addr [initrd[:size]] [fdt]]  - boot Linux zImage stored in memory  The argument \u0026#39;initrd\u0026#39; is optional and specifies the address  of the initrd in memory. The optional argument \u0026#39;:size\u0026#39; allows  specifying the size of RAW initrd.",
+  "keywords": [
+    "BeagleBone", "Linux"
+  ],
+  "articleBody": "基于 Linux 3.8\n内核启动 BeagleBone Black 从零到一 (1 MLO、U-Boot) 这篇文章里讲到 U-Boot 启动之后会运行 uEnv.txt 文件里面 uenvcmd 指代的命令，我们也通常把加载镜像文件等命令写在这里。\nU-Boot 有很多方法能启动内核，通常使用的是 bootm 或者 bootz 命令：\nU-Boot# help bootz bootz - boot Linux zImage image from memory  Usage: bootz [addr [initrd[:size]] [fdt]]  - boot Linux zImage stored in memory  The argument 'initrd' is optional and specifies the address  of the initrd in memory. The optional argument ':size' allows  specifying the size of RAW initrd.  When booting a Linux kernel which requires a flat device-tree  a third argument is required which is the address of the  device-tree blob. To boot that kernel without an initrd image,  use a '-' for the second argument. If you do not pass a third  a bd_info struct will be passed instead  U-Boot# help bootm bootm - boot application image from memory  Usage: bootm [addr [arg ...]]  - boot application image stored in memory  passing arguments 'arg ...'; when booting a Linux kernel,  'arg' can be the address of an initrd image  When booting a Linux kernel which requires a flat device-tree  a third argument is required which is the address of the  device-tree blob. To boot that kernel without an initrd image,  use a '-' for the second argument. If you do not pass a third  a bd_info struct will be passed instead  For the new multi component uImage format (FIT) addresses  must be extened to include component or configuration unit name:  addr: - direct component image specification  addr# - configuration specification  Use iminfo command to get the list of existing component  images and configurations.  Sub-commands to do part of the bootm sequence. The sub-commands must be issued in the order below (it's ok to not issue all sub-commands):  start [addr [arg ...]]  loados - load OS image  ramdisk - relocate initrd, set env initrd_start/initrd_end  fdt - relocate flat device tree  cmdline - OS specific command line processing/setup  bdt - OS specific bd_t processing  prep - OS specific prep before relocation or go  go - start OS bootz 启动存储在内存中的 zImage ，支持 device-tree，其中一些参数： addr：内核地址 initrd：ramdisk 镜像地址，如果没有指定的 initrd 需要传递一个 - 给启动指令。什么是 ramdisk 镜像呢？我们下面会讲到。 fdt： flat device tree 地址，如果没有指定 fdt 地址，会传入一个 bd_info 结构体。什么是 Device Tree 呢？我们下面也会讲到。\nLinux 启动需要的文件 Linux 启动的时候需要挂载根文件系统来运行初始化程序，再总结 bootz 命令，所以 U-Boot 启动 Linux 内核需要以下文件： 内核镜像、initrd 文件（ramdisk 镜像）、DTB（Device Tree Binary）、根文件系统 不是必要但是也是需要的文件： System.map\nLinux 内核镜像 vm 代表 Virtual Memory，Linux 支持虚拟内存，因此得名 vm。Linux 内核按引导程序的不同分不同的格式，主要有：\n vmlinux\t: 最原始的内核静态链接后可执行的文件格式 ELF，没有压缩，不可启动的内核镜像，可能在调试阶段才会用到。 vmlinux.bin : 和 vmlinux 类似不过是可启动的 RAW Binary 格式。所有的标志和重定位信息都被丢弃，由 vmlinux 通过命令 objcopy -O binary vmlinux vmlinux.bin 生成。 vmlinuz\t: 经过压缩过的 vmlinux 可启动镜像。可启动表示有能力加载操作系统到内存中运行，vmlinuz 通常由 zImage 和 bzImage 拷贝而来。 zImage\t: 比zImage 是 ARM linux 常用的一种压缩镜像文件，它是由 vmlinux 加上解压代码经 gzip 压缩而成，通常放在小尺寸 ROM 中（小于 512K），zImage 解压缩内核到低容量内存(640K)。由命令 make zImage 生成。 bzImage\t: bz 表示 big zImage,其格式与 zImage 类似，但采用了不同的压缩算法。bzImage 需要解压缩内核到高容量内存(1M以上)。由命令 make bzImage 生成。 uImage\t: uImage 是 uboot 专用的镜像文件，它是在 zImage 之前加上一个长度为 0x40 的头信息(tag)，在头信息内说明了该镜像文件的类型、加载 位置、生成时间、大小等信息。其 0x40 之后与 zImage 没区别。  编译及生成： BeagleBone 的内核镜像托管在 Github 编译之前可能需要安装的库\n➜ sudo apt-get install lzop ➜ sudo apt-get install libncurses5-dev libncursesw5-dev 源码里面已经包含了 BeagleBone 的配置文件：\n➜ git clone git://github.com/beagleboard/linux.git ➜ cd linux ➜ git checkout 3.8 ➜ make distclean ➜ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- bb.org_defconfig ➜ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- zImage dtbs -j4 编译完成后会在 arch/arm/boot 目录下面生成 zImage 镜像和 dtbs 文件。 或者也可以使用 make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- menuconfig 或者 make ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- xconfig 来自己配置需要编译的内容。 如果使用 make xconfig 则需要安装 qt 和一些依赖，如果使用虚拟机不能使用 ssh 的方式远程编译，需要打开虚拟的图形界面进行编译。 xconfig 的一些依赖：\n➜ sudo apt-get update ➜ sudo apt-get install libqt4-dev pkg-config ➜ sudo apt-get install g++ initrd、initramfs Linux kernel 在自身初始化完成之后，需要能够找到并运行第一个用户程序（这个程序通常叫做 “init” 程序）。用户程序存在于文件系统之中，因此，内核必须找到并挂载一个文件系统才可以成功完成系统的引导过程。\u0008根文件系统（rootfs） 所在的储存装置很可能极难寻找，比方说 SCSI 装置就需要复杂且耗时的程序，若用 RAID 系统更是需要看配置情况而定，同样的问题也发生在 USB storage 上，因为 kernel 得花上更长的等待与配置时间，又或者需要远端挂载 rootfs，不仅得处理网路装置的问题，甚至还得考虑相关的伺服器认证、通讯往返时间等议题。为解决此问题，Linux kernel 提出了一个 RAM disk 的解决方案，把一些启动所必须的用户程序和驱动模块放在 RAM disk 中，这个 RAM disk 看上去和普通的 disk 一样，有文件系统，有 cache，内核启动时，首先把 RAM disk 挂载起来，等到 init 程序和一些必要模块运行起来之后，再切到真正的文件系统之中。更重要的是，有了 initrd（init ram disk） 我们可在放置某些特别的程式，一来作为挂载 rootfs 作准备，比方说硬体初始化、解密、解压缩等等，二来提示使用者或系统管理员目前的状态，这对于消费性电子产品来说，有很大的意义。 整体来说，如果能增加开机的弹性（比方说配合简单的shell script 即​​可达成USB/SCSI 初始化动作，若透过 kernel code 实做，恐怕上百千行是免不掉的），又能适度降低 kernel image 本身的设计复杂度与空间使用量，采取 initrd 是很不错的方式，所以几乎各大Linux distribution 都有提供 initrd，以解决在不同硬体、不同装置上开机的技术议题。 如果仔细考虑一下，initrd 虽然解决了问题但并不完美。 比如，disk 有 cache 机制，对于 RAM disk 来说，这个 cache 机制就显得很多余且浪费空间；disk 需要文件系统，那文件系统（如 ext2 等）必须被编译进 kernel 而不能作为模块来使用。 Linux 2.6 kernel 提出了一种新的实现机制，即 initramfs。顾名思义，initramfs 只是一种 RAM filesystem 而不是 disk。initramfs 实际是一个 cpio 归档，启动所需的用户程序和驱动模块被归档成一个文件。因此，不需要 cache，也不需要文件系统。\n引用：关于 initramfs \n The only purpose of an initramfs is to mount the root filesystem. The initramfs is a complete set of directories that you would find on a normal root filesystem. It is bundled into a single cpio archive and compressed with one of several compression algorithms. initramfs 的唯一用途就是挂载根文件系统。initramfs 就是一个普通文件系统目录的完整的集合。它用几个压缩算法打包成 cpio 格式。 There are only four primary reasons to have an initramfs in the LFS environment: loading the rootfs from a network, loading it from an LVM logical volume, having an encrypted rootfs where a password is required, or for the convenience of specifying the rootfs as a LABEL or UUID. Anything else usually means that the kernel was not configured properly. 在 LFS (Linux From Scratch) 中 initramfs 的存在主要有四个主要的原因：从网络加载根文件系统、从 LMM 逻辑卷加载的根文件系统、加密过的需要密码的根文件系统或者方便的指定根文件系统为 LABLE 或者 UUID。还有别的通常意味着内核配置不正确。 For most distributions, kernel modules are the biggest reason to have an initramfs. In a general distribution, there are many unknowns such as file system types and disk layouts. In a way, this is the opposite of LFS where the system capabilities and layout are known and a custom kernel is normally built. In this situation, an initramfs is rarely needed. 对于大多数分发版本来说，需要 initramfs 最大的原因是内核模块。在一般的分发中，有很多未知的文件系统和磁盘分布，在某种程度下，这是在系统能力和布局未知的情况。 如果说系统能力和布局已知，内核已经建立的情况下很少需要 initramfs。\n 上面提到的 RAM DISK 为 image-initrd，RAM filesystem 为 cpio-initrd，内核启动的时候会先判断是否为 cpio 格式，如果不是的话会当作 image-initrd 处理。\ncpio-initrd 和 image-initrd 处理流程可以参考：Linux2.6 内核的 Initrd 机制解析。\n编译及生成： Linux 2.6 以来都是默认使用 initramfs（“General setup” 的子項目 “Initial RAM filesystem and RAM disk (initramfs/initrd) suppot” 是默认勾选的） ，只是编译的输出很多还沿袭传统使用 initrd 的名字。编译的时候会生成  usr/initramfs_data.cpio 文件，内核编译的时候会把这个文件编译进内核。如果配置选项里面 “Initramfs source file” 为空（不指定 CONFIG_INITRAMFS_SOURCE），会默认编译出一个空的 initramfs 包（没有 init 文件）。 这样一来 Linux 内核编译的时候如果按默认方式编译（勾选 “initial RAM filesystem and RAM disk (initramfs/initrd) suppot”） 则有四种方法生成 initramfs 文件： 1. 不指定 CONFIG_INITRAMFS_SOURCE 则会编译出一个空的 initramfs 2. 为 CONFIG_INITRAMFS_SOURCE 指定一个现有的 initramfs 文件 如果你有一个现有的 initramfs_data.cpio.gz 文件，可以指定给 CONFIG_INITRAMFS_SOURCE ，内核编译时会自动检测文件类型然后链接到内核镜像中去。 3. 为 CONFIG_INITRAMFS_SOURCE 指定一个现有的根文件系统目录 如果为 CONFIG_INITRAMFS_SOURCE 指定一个目录，编译的时候会自动把此目录打包成 cpio 文件，但是不是用的标准的 cpio 命令打包，内核编译时会在指定的目录生成一个描述目录结构的文本文件 gen_initramfs_list.sh，然后给 gen_init_cpio 程序（在 usr 目录下）调用，就会生成 cpio 包。 4. 使用 initramfs_list 配置文件配置 这就是刚刚第三种方法讲的配置文件 gen_initramfs_list.sh，不过我们这里是手动创建配置文件而不是自动生成。手动创建后放入一个目录中，然后指定 CONFIG_INITRAMFS_SOURCE 为那个目录编译的时候就可以生成相应的 cpio 包。 例子：\nfile /init usr/hello 500 0 0 dir /dev 755 0 0 这个内容表示把 usr/hello 指定为文件系统中的 init 文件，权限为 500，uid 和 gid 都为0，并且创建 /dev 文件夹，权限为 755，uid 和 gid 都为 0。 详细使用方法请看：Tech Tip: How to use initramfs.\n值得注意的是我们按照这个方法制作出来的内核镜像实际上比原来的大了许多，这是因为我们是将 initramfs 根文件系统直接合并到内核镜像里边了。这样，启动内核时的参数就不需要添加 initrd=…… 来指定 initramfs 的位置了（或者配置内核的时候直接不勾选 “Initial RAM filesystem and RAM disk (initramfs/initrd) suppot”，但是为了可扩展性一般默认勾选）。 启动命令为：\nbootz ${loadaddr} - ${fdtaddr}; 当然如果想指定外部的 initramfs 文件来启动 Linux，首先直接指定 CONFIG_INITRAMFS_SOURCE 为空，这样就会链接一个空的 initramfs （一百多字节）进内核，然后指定外部 initramfs 的位置来启动。 命令为：\nbootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}; 手动生成 initramfs 文件：\n➜ mkdir sub ➜ cp hello sub/init ➜ cd sub ➜ find . | cpio -o -H newc | gzip  ../initramfs_data.cpio.gz ➜ cd .. ➜ rm -rf sub System.map System.map 是一个特定内核的内核符号表。它是你当前运行的内核的符号链接。Linux 内核是一个很复杂的代码块，有许许多多的全局符号。内核并不使用符号名。它是通过变量或函数的地址(指针)来使用变量或函数的，而不是使用 size_t BytesRead，内核更喜欢使用(例如) c0343f20 来引用这个变量。 当你编译一个新内核时，各个符号名的地址要发生变化，你的老的 System.map 具有的是错误的符号信息。每次内核编译时产生一个新的 System.map，你应当用新的System.map 来取代老的 System.map。 虽然内核本身并不真正使用 System.map，但其它程序比如 klogd， lsof 和 ps 等软件需要一个正确的 System.map。如果你使用错误的或没有 System.map，klogd 的输出将是不可靠的，这对于排除程序故障会带来困难。没有 System.map，你可能会面临一些令人烦恼的提示信息。 另外少数驱动需要 System.map 来解析符号，没有为你当前运行的特定内核创建的System.map 它们就不能正常工作。 Linux 的内核日志守护进程 klogd 为了执行名称-地址解析，klogd 需要使用System.map。System.map 应当放在使用它的软件能够找到它的地方。执行：man klogd 可知，如果没有将 System.map 作为一个变量的位置给 klogd，那么它将按照下面的顺序，在三个地方查找 System.map： /boot/System.map /System.map /usr/src/linux/System.map System.map 也有版本信息，klogd 能够智能地查找正确的映象（map）文件。\n编译及生成： System.map 文件在编译内核的时候会自动生成在源码根目录下，每次重新编译内核都要替换掉相应的 System.map。\nDevice Tree 机制 Kernel 3.x 版本之后开始支持 Device Tree 机制。 在早期的ARM Linux Kernel中，板级细节（BSP）使用代码形式，存放在 arch/arm/ 目录。名字通常为：plat-xxxx 或者 mach-xxxx，相当多数的代码只是在描述板级细节，而这些板级细节对于内核来讲，不过是垃圾。板级代码只对相应开发板有用，每次升级 Kernel 都需要对板级代码进行升级和测试，ARM 对应的开发板又种类繁多所以这些代码越来越臃肿庞大。 引入了 Device Tree 之后，改变了原来用硬编码的方式把板级代码嵌入在内核里面，改用通过 Bootloader 传递 DB 文件的方式把硬件信息传递给 Kernel，实现了内核和板级代码的低耦合，减少内核代码的臃肿降低维护人员的成本。 Uboot 的主线代码从 v1.1.3 开始就支持 DT 了，其对ARM的支持和 Kernel 对 Device Tree 的支持是同期完成的，在 Uboot 中需要在配置文件中加入  #define CONFIG_OF_LIBFDT 配置项即可，当我们将 DTB 文件在 Uboot 里加载到内存中后，通过 fdt addr 0xnnnnnnnn 命令来设置 DTB 文件对应地址，这样就可以使用 fdt resize、fdt print 等命令对 DTB 文件进行操作了。对于 ARM，使用 bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr} 命令来启动 Kernel。 更多背景介绍：Device Tree 背景介绍\n编译及生成： DTS：Device Tree Source 位于目录 linux/arch/arm/boot/dts DTC：Device Tree Compiler 位于目录 linux/scripts/dtc/dtc DTB：Device Tree Binary 生成在 linux/arch/arm/boot/dts DTB 是由 DTS 通过 DTC 编译而成。 在构建内核的时候可以使用 make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs 生成。 Device Tree Binary 在编译 linux 内核的时候自动根据 arch/arm/boot/dts/Makefile 指定的方式生成，也可以通过 dtc 手动编译：\n➜ ./scripts/dtc/dtc -I dts -O dtb -o ./devicetree.dtb ./beaglebone.dts DTS 组成和结构专门写一篇文章来讲。\n根文件系统 根文件系统是内核挂载的第一个文件系统，根文件系统为分层文件树的顶点。它包含对于系统操作很关键的文件和目录，包括设备目录和用于引导系统的程序。根文件系统还包含可安装文件系统以连接到根文件系统层次结构的安装点。 Linux 只有一个文件树,整个文件系统是以一个树根 “/” 为起点的，所有的文件和外部设备都以文件的形式挂结在这个文件树上，包括硬盘、软盘、光驱、调制解调器等，这和以 “驱动器盘符” 为基础的Windows系统是大不相同的。\n编译及生成： 根文件系统的制作可以自己建立各个系统文件夹添加需要的库和启动文件然后打包成可分发的镜像。 目前一般使用 buildroot 或者 busybox 来制作根文件系统，buildroot 比 busybox 更强大并且包含了 busybox 。\n下载 buildroot 源码：\n➜ git clone git://git.buildroot.net/buildroot 为 Beaglebone 配置 buildroot：\n➜ make beaglebone_defconfig 如果只编译文件系统，需要做一些修改：\n➜ make menuconfig 取消勾选 Kernel -- Linux Kernel，这里不编译内核； 取消勾选 bootloaders -- u-boot，也不编译 u-boot；\n Target options ---:  Floating point strategy (NEON)  ARM instruction set (Thumb2) Toolchain ---  Toolchain type (External toolchain)  Toolchain (Linaro ARM 2014.08)  Toolchain origin (Toolchain to be downloaded and installed) //让 buildroot 自己下载 Target packages ---  Networking applications ---  [*] dhcpcd  [*] openssh  Text editors and viewers ---  [*] nano Filesystem images ---  ext2/3/4 variant (ext4) ---  (X) ext4 保存然后：\n➜ make make 的时候 buildroot 会联网下载一些编译工具或者依赖包。最后会在 output 文件夹中生成相应的文件系统，把生成的文件系统烧写进 SD 卡中：\n➜ sudo dd if=buildroot/output/images/rootfs.ext4 of=/dev/sdc2 值得注意的是用以上命令烧写之后可以看到 SD 卡使用率变成 100%，没有空间写别的文件进去了。 这是因为使用 dd 命令不仅仅把文件而是把整个文件系统都烧写到 SD 卡中了，包括磁盘使用率的 metadata 描述。虽然 SD 卡上还有很多剩余空间，但是剩余空间还没有合并到特定的分区上，隐藏在 SD 卡分区的末尾。 这个时候使用 resize 命令就能合并了（在 ext2、ext3和ext4上都能使用，并且执行命令的时候会提示使用 e2fsck 检查下文件系统，按提示操作即可）：\n➜ sudo resize2fs /dev/sda99 如果我们在 buildroot 中的 toolchain 指定外部编译工具为之前在 Ubuntu 上面 apt-get 的交叉编译器，那么编译的时候则会出现错误信息：\n Distribution toolchains are unsuitable for use by Buildroot, as they were configured in a way that makes them non-relocatable, and contain a lot of pre-built libraries that would conflict with the ones Buildroot wants to build.\n 这是因为 Ubuntu 得到的交叉编译器被配置成不可重定位的，而且包含了一些与 buildroot 相冲突的库，官方解释：\n Distro toolchains, i.ie. toolchains coing with distributions, will almost invariably be unsuitable for use with Buildroot:\n they are mostly non-relocatable; their sysroot is tainted with a lot of extra libraries.    Especially, the toolchains coming with Ubuntu (really, all the Debian familly of distros) are configured with –sysroot=/ which makes them non-relocatable, and they already contain quite some libraries that conflict (in any combination of version, API or ABI) with what Buildroot wants to build (i.e. extra libraries, some not even present in Buildroot…) but also their mere preence when Buildroot does not expect them to be already built (so that a package would enable features when it should not).\n 所以我们要自己下载交叉编译工具或者让 buildroot 自动下载。\n开始完整启动 Linux 准备：\n SD 卡已经分好两个区，区 1 为 FTA 格式，区 2 为 EXT4 格式，区 1 前面留有 1 MB 的空间供 U-Boot 使用 U-Boot 已经编译好并把 MLO 和 uboot.img 文件烧写到 SD 卡的前 1M 起始位置，以便处理器用 RAW Mode 启动 U-boot，具体请看BeagleBone Black 从零到一 (1 MLO、U-Boot)； Linux 已经编译好并且生成了 zImage、System.map； initramfs 已经制作好并且生成了 initrd.img；（如果没有特殊的启动前要求此项可以忽略）； 文件系统已经制作好并且烧入到 SD 卡的 ext4 分区中；  新建 boot 目录：\n➜ mkdir boot 拷贝内核编译出来的 zImage 和 System.map 至 boot 目录并重命名：\n➜ cp zImage ~/boot/ ➜ cp System.map ~/boot/ ➜ mv ~/boot/zImage ~/boot/vmlinuz 把 initrd.img 和 dtb 文件拷贝到 boot 文件夹，再把整个 boot 文件夹拷贝到 ext4 分区的根目录。 在 FTA 分区中新建 uEnv.txt 文件，让 U-Boot 启动之后自动运行相应的指令启动 Linux：\n## uEnv.txt 可以引用默认的环境变量，在 include/configs/xxx.h 里面定义 ## 因为 SDRAM 的地址是从 0x80000000开始的，这里设置镜像、dtb、initrd加载到的地址分别为 0x82000000、0x88000000、0x88080000 loadaddr=0x82000000 fdtaddr=0x88000000 rdaddr=0x88080000 ## 设置 initrd_high=0xffffffff fdt_high=0xffffffff  ## 设置命令为先打印 debug 信息，然后从第 0 个 MMC 设备的第 2 个分区里面的boot 文件夹中的 vmliuz 文件加载到 loadaddr 处 loadximage=echo debug: [/boot/vmlinuz] ... ; load mmc 0:2 ${loadaddr} /boot/vmlinuz} ## 同样的加载 dtb 文件 loadxfdt=echo debug: [/boot/{fdtfile}] ... ;load mmc 0:2 ${fdtaddr} /boot/${fdtfile} ## 加载 initrd loadxrd=echo debug: [/boot/initrd.img] ... ; load mmc 0:2 ${rdaddr} /boot/initrd.img; setenv rdsize ${filesize} ## 加载第二个分区的 uEnv.txt 文件 loaduEnvtxt=load mmc 0:2 ${loadaddr} /boot/uEnv.txt ; env import -t ${loadaddr} ${filesize}; ## 检查 ${dtb} 字符串长度是否不为 0，如果不为 0 就赋值给 fdtfile check_dtb=if test -n ${dtb}; then setenv fdtfile ${dtb};fi; ## 运行前面指定的命令 loadall=run loaduEnvtxt; run check_dtb; run loadximage; run loadxrd; run loadxfdt;  ## 设置传递给内核的参数，其中 cmdline 是在第二个分区也就是放置 linux 镜像的分区内的 boot 文件夹中的 uEnv.txt 加载的 mmcargs=setenv bootargs console=tty0 console=${console} ${optargs} ${cape_disable} ${cape_enable} root=/dev/mmcblk0p2 rootfstype=${mmcrootfstype} ${cmdline}  ## 根据前面几篇文章 U-Boot 的配置，启动后会运行 uenvcmd uenvcmd=run loadall; run mmcargs; echo debug: [${bootargs}] ... ; echo debug: [bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}] ... ; bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}; SD 卡中 ext4 分区中 boot 文件夹中再创建一个 uEnv.txt，这边的 uEnv.txt 便于向 U-Boot 传递一些内核参数之类的，不用每次换了内核之类的都去修改 U-Boot 那边的文件:\nuname_r=3.8.13-bone79 #uuid= #dtb= cmdline=coherent_pool=1M quiet init=/lib/systemd/systemd cape_universal=enable 都设置好了之后，把 SD 卡插入 beaglebone 中并且按住 S2 键上电就能从 SD 卡中启动了。\n参考：  vmlinuz Definition 制作 initramfs/initrd 镜像 System.map 解析 Device Tree：背景介绍 Linux2.6 内核的 Initrd 机制解析 深入理解 Linux 2.6 的 initramfs 機制 (上) Why do I need initramfs ? How to use initramfs Initramfs Tutorial ramfs, rootfs and initramfs   ",
+  "wordCount" : "1828",
+  "inLanguage": "en",
+  "datePublished": "2016-04-17T15:06:55Z",
+  "dateModified": "2016-04-17T15:06:55Z",
+  "author":{
+    "@type": "Person",
+    "name": "X"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tinyx.me/post/BBB-Prepare-booting/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TinyX",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tinyx.me/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://tinyx.me" accesskey="h" title="TinyX 👾 (Alt + H)">TinyX 👾</a>
+            <span class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </span>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://tinyx.me/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://tinyx.me">Home</a>&nbsp;»&nbsp;<a href="https://tinyx.me/post/">Posts</a></div>
+    <h1 class="post-title">
+      BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)
+    </h1>
+    <div class="post-meta"><span title='2016-04-17 15:06:55 +0000 UTC'>April 17, 2016</span>&nbsp;·&nbsp;X
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e5%86%85%e6%a0%b8%e5%90%af%e5%8a%a8" aria-label="内核启动">内核启动</a><ul>
+                        
+                <li>
+                    <a href="#linux-%e5%90%af%e5%8a%a8%e9%9c%80%e8%a6%81%e7%9a%84%e6%96%87%e4%bb%b6" aria-label="Linux 启动需要的文件">Linux 启动需要的文件</a></li></ul>
+                </li>
+                <li>
+                    <a href="#linux-%e5%86%85%e6%a0%b8%e9%95%9c%e5%83%8f" aria-label="Linux 内核镜像">Linux 内核镜像</a><ul>
+                        
+                <li>
+                    <a href="#%e7%bc%96%e8%af%91%e5%8f%8a%e7%94%9f%e6%88%90" aria-label="编译及生成：">编译及生成：</a></li></ul>
+                </li>
+                <li>
+                    <a href="#initrdinitramfs" aria-label="initrd、initramfs">initrd、initramfs</a><ul>
+                        
+                <li>
+                    <a href="#%e7%bc%96%e8%af%91%e5%8f%8a%e7%94%9f%e6%88%90-1" aria-label="编译及生成：">编译及生成：</a></li></ul>
+                </li>
+                <li>
+                    <a href="#systemmap" aria-label="System.map">System.map</a><ul>
+                        
+                <li>
+                    <a href="#%e7%bc%96%e8%af%91%e5%8f%8a%e7%94%9f%e6%88%90-2" aria-label="编译及生成：">编译及生成：</a></li></ul>
+                </li>
+                <li>
+                    <a href="#device-tree-%e6%9c%ba%e5%88%b6" aria-label="Device Tree 机制">Device Tree 机制</a><ul>
+                        
+                <li>
+                    <a href="#%e7%bc%96%e8%af%91%e5%8f%8a%e7%94%9f%e6%88%90-3" aria-label="编译及生成：">编译及生成：</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e6%a0%b9%e6%96%87%e4%bb%b6%e7%b3%bb%e7%bb%9f" aria-label="根文件系统">根文件系统</a><ul>
+                        
+                <li>
+                    <a href="#%e7%bc%96%e8%af%91%e5%8f%8a%e7%94%9f%e6%88%90-4" aria-label="编译及生成：">编译及生成：</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%bc%80%e5%a7%8b%e5%ae%8c%e6%95%b4%e5%90%af%e5%8a%a8-linux" aria-label="开始完整启动 Linux">开始完整启动 Linux</a></li>
+                <li>
+                    <a href="#%e5%8f%82%e8%80%83" aria-label="参考：">参考：</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><p>基于 Linux 3.8</p>
+<h2 id="内核启动">内核启动<a hidden class="anchor" aria-hidden="true" href="#内核启动">#</a></h2>
+<p><a href="http://jexbat.com/2016/BBB-Uboot/">BeagleBone Black 从零到一 (1 MLO、U-Boot)</a> 这篇文章里讲到 U-Boot 启动之后会运行 <code>uEnv.txt</code> 文件里面 <code>uenvcmd</code> 指代的命令，我们也通常把加载镜像文件等命令写在这里。</p>
+<!-- raw HTML omitted -->
+<p>U-Boot 有很多方法能启动内核，通常使用的是 <code>bootm</code> 或者 <code>bootz</code> 命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>U-Boot# help bootz
+</span></span><span style="display:flex;"><span>bootz - boot Linux zImage image from memory
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Usage:
+</span></span><span style="display:flex;"><span>bootz <span style="color:#f92672">[</span>addr <span style="color:#f92672">[</span>initrd<span style="color:#f92672">[</span>:size<span style="color:#f92672">]]</span> <span style="color:#f92672">[</span>fdt<span style="color:#f92672">]]</span>
+</span></span><span style="display:flex;"><span>    - boot Linux zImage stored in memory
+</span></span><span style="display:flex;"><span>        The argument <span style="color:#e6db74">&#39;initrd&#39;</span> is optional and specifies the address
+</span></span><span style="display:flex;"><span>        of the initrd in memory. The optional argument <span style="color:#e6db74">&#39;:size&#39;</span> allows
+</span></span><span style="display:flex;"><span>        specifying the size of RAW initrd.
+</span></span><span style="display:flex;"><span>        When booting a Linux kernel which requires a flat device-tree
+</span></span><span style="display:flex;"><span>        a third argument is required which is the address of the
+</span></span><span style="display:flex;"><span>        device-tree blob. To boot that kernel without an initrd image,
+</span></span><span style="display:flex;"><span>        use a <span style="color:#e6db74">&#39;-&#39;</span> <span style="color:#66d9ef">for</span> the second argument. If you <span style="color:#66d9ef">do</span> not pass a third
+</span></span><span style="display:flex;"><span>        a bd_info struct will be passed instead
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>U-Boot# help bootm
+</span></span><span style="display:flex;"><span>bootm - boot application image from memory
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Usage:
+</span></span><span style="display:flex;"><span>bootm <span style="color:#f92672">[</span>addr <span style="color:#f92672">[</span>arg ...<span style="color:#f92672">]]</span>
+</span></span><span style="display:flex;"><span>    - boot application image stored in memory
+</span></span><span style="display:flex;"><span>        passing arguments <span style="color:#e6db74">&#39;arg ...&#39;</span>; when booting a Linux kernel,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#39;arg&#39;</span> can be the address of an initrd image
+</span></span><span style="display:flex;"><span>        When booting a Linux kernel which requires a flat device-tree
+</span></span><span style="display:flex;"><span>        a third argument is required which is the address of the
+</span></span><span style="display:flex;"><span>        device-tree blob. To boot that kernel without an initrd image,
+</span></span><span style="display:flex;"><span>        use a <span style="color:#e6db74">&#39;-&#39;</span> <span style="color:#66d9ef">for</span> the second argument. If you <span style="color:#66d9ef">do</span> not pass a third
+</span></span><span style="display:flex;"><span>        a bd_info struct will be passed instead
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>For the new multi component uImage format <span style="color:#f92672">(</span>FIT<span style="color:#f92672">)</span> addresses
+</span></span><span style="display:flex;"><span>        must be extened to include component or configuration unit name:
+</span></span><span style="display:flex;"><span>        addr:&lt;subimg_uname&gt; - direct component image specification
+</span></span><span style="display:flex;"><span>        addr#&lt;conf_uname&gt;   - configuration specification
+</span></span><span style="display:flex;"><span>        Use iminfo command to get the list of existing component
+</span></span><span style="display:flex;"><span>        images and configurations.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Sub-commands to <span style="color:#66d9ef">do</span> part of the bootm sequence.  The sub-commands must be
+</span></span><span style="display:flex;"><span>issued in the order below <span style="color:#f92672">(</span>it<span style="color:#960050;background-color:#1e0010">&#39;</span>s ok to not issue all sub-commands<span style="color:#f92672">)</span>:
+</span></span><span style="display:flex;"><span>        start <span style="color:#f92672">[</span>addr <span style="color:#f92672">[</span>arg ...<span style="color:#f92672">]]</span>
+</span></span><span style="display:flex;"><span>        loados  - load OS image
+</span></span><span style="display:flex;"><span>        ramdisk - relocate initrd, set env initrd_start/initrd_end
+</span></span><span style="display:flex;"><span>        fdt     - relocate flat device tree
+</span></span><span style="display:flex;"><span>        cmdline - OS specific command line processing/setup
+</span></span><span style="display:flex;"><span>        bdt     - OS specific bd_t processing
+</span></span><span style="display:flex;"><span>        prep    - OS specific prep before relocation or go
+</span></span><span style="display:flex;"><span>        go      - start OS
+</span></span></code></pre></div><p>bootz 启动存储在内存中的 zImage ，支持 device-tree，其中一些参数：
+addr：内核地址
+initrd：ramdisk 镜像地址，如果没有指定的 initrd 需要传递一个 <code>-</code> 给启动指令。什么是 ramdisk 镜像呢？我们下面会讲到。
+fdt： flat device tree 地址，如果没有指定 fdt 地址，会传入一个 <code>bd_info</code> 结构体。什么是 Device Tree 呢？我们下面也会讲到。</p>
+<h3 id="linux-启动需要的文件">Linux 启动需要的文件<a hidden class="anchor" aria-hidden="true" href="#linux-启动需要的文件">#</a></h3>
+<p>Linux 启动的时候需要挂载根文件系统来运行初始化程序，再总结 bootz 命令，所以 U-Boot 启动 Linux 内核需要以下文件：
+内核镜像、initrd 文件（ramdisk 镜像）、DTB（Device Tree Binary）、根文件系统
+不是必要但是也是需要的文件：
+System.map</p>
+<h2 id="linux-内核镜像">Linux 内核镜像<a hidden class="anchor" aria-hidden="true" href="#linux-内核镜像">#</a></h2>
+<p>vm 代表 Virtual Memory，Linux 支持虚拟内存，因此得名 vm。Linux 内核按引导程序的不同分不同的格式，主要有：</p>
+<ul>
+<li><strong>vmlinux</strong>		: 最原始的内核静态链接后可执行的文件格式 ELF，没有压缩，不可启动的内核镜像，可能在调试阶段才会用到。</li>
+<li><strong>vmlinux.bin</strong> 	: 和 vmlinux 类似不过是可启动的 RAW Binary 格式。所有的标志和重定位信息都被丢弃，由 vmlinux 通过命令 <code>objcopy -O binary vmlinux vmlinux.bin</code> 生成。</li>
+<li><strong>vmlinuz</strong>		: 经过压缩过的 <code>vmlinux</code> 可启动镜像。可启动表示有能力加载操作系统到内存中运行，vmlinuz 通常由 zImage 和 bzImage 拷贝而来。</li>
+<li><strong>zImage</strong>			: 比zImage 是 ARM linux 常用的一种压缩镜像文件，它是由 vmlinux 加上解压代码经 gzip 压缩而成，通常放在小尺寸 ROM 中（小于 512K），zImage 解压缩内核到低容量内存(640K)。由命令 <code>make zImage</code> 生成。</li>
+<li><strong>bzImage</strong>		: bz 表示 big zImage,其格式与 zImage 类似，但采用了不同的压缩算法。bzImage 需要解压缩内核到高容量内存(1M以上)。由命令 <code>make bzImage</code> 生成。</li>
+<li><strong>uImage</strong>			: uImage 是 uboot 专用的镜像文件，它是在 zImage 之前加上一个长度为 0x40 的头信息(tag)，在头信息内说明了该镜像文件的类型、加载 位置、生成时间、大小等信息。其 0x40 之后与 zImage 没区别。</li>
+</ul>
+<h3 id="编译及生成">编译及生成：<a hidden class="anchor" aria-hidden="true" href="#编译及生成">#</a></h3>
+<p>BeagleBone 的内核镜像托管在 <a href="https://github.com/beagleboard/linux">Github</a>
+编译之前可能需要安装的库</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ sudo apt-get install lzop
+</span></span><span style="display:flex;"><span>➜ sudo apt-get install libncurses5-dev libncursesw5-dev
+</span></span></code></pre></div><p>源码里面已经包含了 BeagleBone 的配置文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ git clone git://github.com/beagleboard/linux.git
+</span></span><span style="display:flex;"><span>➜ cd linux
+</span></span><span style="display:flex;"><span>➜ git checkout 3.8
+</span></span><span style="display:flex;"><span>➜ make distclean
+</span></span><span style="display:flex;"><span>➜ make ARCH<span style="color:#f92672">=</span>arm CROSS_COMPILE<span style="color:#f92672">=</span>arm-linux-gnueabi- bb.org_defconfig 
+</span></span><span style="display:flex;"><span>➜ make ARCH<span style="color:#f92672">=</span>arm CROSS_COMPILE<span style="color:#f92672">=</span>arm-linux-gnueabihf- zImage dtbs -j4
+</span></span></code></pre></div><p>编译完成后会在 <code>arch/arm/boot</code> 目录下面生成 zImage 镜像和 dtbs 文件。
+或者也可以使用 <code>make  ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-  menuconfig</code> 或者 <code>make   ARCH=arm CROSS_COMPILE=arm-linux-gnueabi-  xconfig</code> 来自己配置需要编译的内容。
+如果使用 <code>make xconfig</code> 则需要安装 qt 和一些依赖，如果使用虚拟机不能使用 ssh 的方式远程编译，需要打开虚拟的图形界面进行编译。
+xconfig 的一些依赖：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ sudo apt-get update
+</span></span><span style="display:flex;"><span>➜ sudo apt-get install libqt4-dev pkg-config
+</span></span><span style="display:flex;"><span>➜ sudo apt-get install g++
+</span></span></code></pre></div><h2 id="initrdinitramfs">initrd、initramfs<a hidden class="anchor" aria-hidden="true" href="#initrdinitramfs">#</a></h2>
+<p>Linux kernel 在自身初始化完成之后，需要能够找到并运行第一个用户程序（这个程序通常叫做 “init” 程序）。用户程序存在于文件系统之中，因此，内核必须找到并挂载一个文件系统才可以成功完成系统的引导过程。根文件系统（rootfs） 所在的储存装置很可能极难寻找，比方说 SCSI 装置就需要复杂且耗时的程序，若用 RAID 系统更是需要看配置情况而定，同样的问题也发生在 USB storage 上，因为 kernel 得花上更长的等待与配置时间，又或者需要远端挂载 rootfs，不仅得处理网路装置的问题，甚至还得考虑相关的伺服器认证、通讯往返时间等议题。为解决此问题，Linux kernel 提出了一个 RAM disk 的解决方案，把一些启动所必须的用户程序和驱动模块放在 RAM disk 中，这个 RAM disk 看上去和普通的 disk 一样，有文件系统，有 cache，内核启动时，首先把 RAM disk 挂载起来，等到 init 程序和一些必要模块运行起来之后，再切到真正的文件系统之中。更重要的是，有了 initrd（init ram disk） 我们可在放置某些特别的程式，一来作为挂载 rootfs 作准备，比方说硬体初始化、解密、解压缩等等，二来提示使用者或系统管理员目前的状态，这对于消费性电子产品来说，有很大的意义。
+整体来说，如果能增加开机的弹性（比方说配合简单的shell script 即​​可达成USB/SCSI 初始化动作，若透过 kernel code 实做，恐怕上百千行是免不掉的），又能适度降低 kernel image 本身的设计复杂度与空间使用量，采取 initrd 是很不错的方式，所以几乎各大Linux distribution 都有提供 initrd，以解决在不同硬体、不同装置上开机的技术议题。
+如果仔细考虑一下，initrd 虽然解决了问题但并不完美。 比如，disk 有 cache 机制，对于 RAM disk 来说，这个 cache 机制就显得很多余且浪费空间；disk 需要文件系统，那文件系统（如 ext2 等）必须被编译进 kernel 而不能作为模块来使用。
+Linux 2.6 kernel 提出了一种新的实现机制，即 initramfs。顾名思义，initramfs 只是一种 RAM filesystem 而不是 disk。initramfs 实际是一个 cpio 归档，启动所需的用户程序和驱动模块被归档成一个文件。因此，不需要 cache，也不需要文件系统。</p>
+<p>引用：<a href="http://www.linuxfromscratch.org/blfs/view/cvs/postlfs/initramfs.html">关于 initramfs </a></p>
+<blockquote>
+<p>The only purpose of an initramfs is to mount the root filesystem. The initramfs is a complete set of directories that you would find on a normal root filesystem. It is bundled into a single cpio archive and compressed with one of several compression algorithms.
+initramfs 的唯一用途就是挂载根文件系统。initramfs 就是一个普通文件系统目录的完整的集合。它用几个压缩算法打包成 cpio 格式。
+There are only four primary reasons to have an initramfs in the LFS environment: loading the rootfs from a network, loading it from an LVM logical volume, having an encrypted rootfs where a password is required, or for the convenience of specifying the rootfs as a LABEL or UUID. Anything else usually means that the kernel was not configured properly.
+在 LFS (Linux From Scratch) 中 initramfs 的存在主要有四个主要的原因：从网络加载根文件系统、从 LMM 逻辑卷加载的根文件系统、加密过的需要密码的根文件系统或者方便的指定根文件系统为 LABLE 或者 UUID。还有别的通常意味着内核配置不正确。
+For most distributions, kernel modules are the biggest reason to have an initramfs. In a general distribution, there are many unknowns such as file system types and disk layouts. In a way, this is the opposite of LFS where the system capabilities and layout are known and a custom kernel is normally built. In this situation, an initramfs is rarely needed.
+对于大多数分发版本来说，需要 initramfs 最大的原因是内核模块。在一般的分发中，有很多未知的文件系统和磁盘分布，在某种程度下，这是在系统能力和布局未知的情况。 如果说系统能力和布局已知，内核已经建立的情况下很少需要 initramfs。</p>
+</blockquote>
+<p>上面提到的 RAM DISK 为 image-initrd，RAM filesystem 为 cpio-initrd，内核启动的时候会先判断是否为 cpio 格式，如果不是的话会当作 image-initrd 处理。</p>
+<p>cpio-initrd 和 image-initrd 处理流程可以参考：<a href="https://www.ibm.com/developerworks/cn/linux/l-k26initrd/">Linux2.6 内核的 Initrd 机制解析</a>。</p>
+<h3 id="编译及生成-1">编译及生成：<a hidden class="anchor" aria-hidden="true" href="#编译及生成-1">#</a></h3>
+<p>Linux 2.6 以来都是默认使用 initramfs（&ldquo;General setup&rdquo; 的子項目 &ldquo;Initial RAM filesystem and RAM disk (initramfs/initrd) suppot&rdquo; 是默认勾选的） ，只是编译的输出很多还沿袭传统使用 initrd 的名字。编译的时候会生成 <code> usr/initramfs_data.cpio</code> 文件，内核编译的时候会把这个文件编译进内核。如果配置选项里面 &ldquo;Initramfs source file&rdquo; 为空（不指定 <code>CONFIG_INITRAMFS_SOURCE</code>），会默认编译出一个<strong>空的</strong> initramfs 包（没有 init 文件）。
+这样一来 Linux 内核编译的时候如果按默认方式编译（勾选 &ldquo;initial RAM filesystem and RAM disk (initramfs/initrd) suppot&rdquo;） 则有四种方法生成 initramfs 文件：
+<strong>1. 不指定 <code>CONFIG_INITRAMFS_SOURCE</code> 则会编译出一个空的 initramfs</strong>
+<strong>2. 为 <code>CONFIG_INITRAMFS_SOURCE</code> 指定一个现有的 initramfs 文件</strong>
+如果你有一个现有的  <code>initramfs_data.cpio.gz</code> 文件，可以指定给 <code>CONFIG_INITRAMFS_SOURCE</code> ，内核编译时会自动检测文件类型然后链接到内核镜像中去。
+<strong>3. 为 <code>CONFIG_INITRAMFS_SOURCE</code> 指定一个现有的根文件系统目录</strong>
+如果为 <code>CONFIG_INITRAMFS_SOURCE</code> 指定一个目录，编译的时候会自动把此目录打包成 cpio 文件，但是不是用的标准的 cpio 命令打包，内核编译时会在指定的目录生成一个描述目录结构的文本文件 <code>gen_initramfs_list.sh</code>，然后给 <code>gen_init_cpio</code> 程序（在 <code>usr</code> 目录下）调用，就会生成 cpio 包。
+<strong>4. 使用 <code>initramfs_list</code> 配置文件配置</strong>
+这就是刚刚第三种方法讲的配置文件 <code>gen_initramfs_list.sh</code>，不过我们这里是手动创建配置文件而不是自动生成。手动创建后放入一个目录中，然后指定 <code>CONFIG_INITRAMFS_SOURCE</code> 为那个目录编译的时候就可以生成相应的 cpio 包。
+例子：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>file /init usr/hello <span style="color:#ae81ff">500</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>dir /dev <span style="color:#ae81ff">755</span> <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>
+</span></span></code></pre></div><p>这个内容表示把 <code>usr/hello</code> 指定为文件系统中的 <code>init 文件</code>，权限为 500，uid 和 gid 都为0，并且创建 <code>/dev</code> 文件夹，权限为 755，uid 和 gid 都为 0。
+详细使用方法请看：<a href="http://landley.net/writing/rootfs-howto.html">Tech Tip: How to use initramfs.</a></p>
+<p>值得注意的是我们按照这个方法制作出来的内核镜像实际上比原来的大了许多，这是因为我们是将 initramfs 根文件系统直接合并到内核镜像里边了。这样，启动内核时的参数就不需要添加 initrd=…… 来指定 initramfs 的位置了（或者配置内核的时候直接不勾选 &ldquo;Initial RAM filesystem and RAM disk (initramfs/initrd) suppot&rdquo;，但是为了可扩展性一般默认勾选）。
+启动命令为：</p>
+<pre tabindex="0"><code>bootz ${loadaddr} - ${fdtaddr};
+</code></pre><p>当然如果想指定外部的 initramfs 文件来启动 Linux，首先直接指定 <code>CONFIG_INITRAMFS_SOURCE</code> 为空，这样就会链接一个空的 initramfs （一百多字节）进内核，然后指定外部 initramfs 的位置来启动。
+命令为：</p>
+<pre tabindex="0"><code>bootz ${loadaddr} ${rdaddr}:${rdsize}  ${fdtaddr};
+</code></pre><p>手动生成 initramfs 文件：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ mkdir sub   
+</span></span><span style="display:flex;"><span>➜ cp hello sub/init
+</span></span><span style="display:flex;"><span>➜ cd sub
+</span></span><span style="display:flex;"><span>➜ find . | cpio -o -H newc | gzip &gt; ../initramfs_data.cpio.gz
+</span></span><span style="display:flex;"><span>➜ cd ..
+</span></span><span style="display:flex;"><span>➜ rm -rf sub
+</span></span></code></pre></div><h2 id="systemmap">System.map<a hidden class="anchor" aria-hidden="true" href="#systemmap">#</a></h2>
+<p>System.map 是一个特定内核的内核符号表。它是你当前运行的内核的符号链接。Linux 内核是一个很复杂的代码块，有许许多多的全局符号。内核并不使用符号名。它是通过变量或函数的地址(指针)来使用变量或函数的，而不是使用 size_t BytesRead，内核更喜欢使用(例如) c0343f20 来引用这个变量。
+当你编译一个新内核时，各个符号名的地址要发生变化，你的老的 System.map 具有的是错误的符号信息。每次内核编译时产生一个新的 System.map，你应当用新的System.map 来取代老的 System.map。
+虽然内核本身并不真正使用 System.map，但其它程序比如 klogd， lsof 和 ps 等软件需要一个正确的 System.map。如果你使用错误的或没有 System.map，klogd 的输出将是不可靠的，这对于排除程序故障会带来困难。没有 System.map，你可能会面临一些令人烦恼的提示信息。
+另外少数驱动需要 System.map 来解析符号，没有为你当前运行的特定内核创建的System.map 它们就不能正常工作。
+Linux 的内核日志守护进程 klogd 为了执行名称-地址解析，klogd 需要使用System.map。System.map 应当放在使用它的软件能够找到它的地方。执行：man klogd 可知，如果没有将 System.map 作为一个变量的位置给 klogd，那么它将按照下面的顺序，在三个地方查找 System.map：
+<code>/boot/System.map</code>
+<code>/System.map</code>
+<code>/usr/src/linux/System.map</code>
+System.map 也有版本信息，klogd 能够智能地查找正确的映象（map）文件。</p>
+<h3 id="编译及生成-2">编译及生成：<a hidden class="anchor" aria-hidden="true" href="#编译及生成-2">#</a></h3>
+<p>System.map 文件在编译内核的时候会自动生成在源码根目录下，每次重新编译内核都要替换掉相应的 System.map。</p>
+<h2 id="device-tree-机制">Device Tree 机制<a hidden class="anchor" aria-hidden="true" href="#device-tree-机制">#</a></h2>
+<p>Kernel 3.x 版本之后开始支持 Device Tree 机制。
+在早期的ARM Linux Kernel中，板级细节（BSP）使用代码形式，存放在 <code>arch/arm/</code> 目录。名字通常为：plat-xxxx 或者 mach-xxxx，相当多数的代码只是在描述板级细节，而这些板级细节对于内核来讲，不过是垃圾。板级代码只对相应开发板有用，每次升级 Kernel 都需要对板级代码进行升级和测试，ARM 对应的开发板又种类繁多所以这些代码越来越臃肿庞大。
+引入了 Device Tree 之后，改变了原来用硬编码的方式把板级代码嵌入在内核里面，改用通过 Bootloader 传递 DB 文件的方式把硬件信息传递给 Kernel，实现了内核和板级代码的低耦合，减少内核代码的臃肿降低维护人员的成本。
+Uboot 的主线代码从 v1.1.3 开始就支持 DT 了，其对ARM的支持和 Kernel 对 Device Tree 的支持是同期完成的，在 Uboot 中需要在配置文件中加入  <code> #define CONFIG_OF_LIBFDT</code> 配置项即可，当我们将 DTB 文件在 Uboot 里加载到内存中后，通过 <code>fdt addr 0xnnnnnnnn</code> 命令来设置 DTB 文件对应地址，这样就可以使用 <code>fdt resize</code>、<code>fdt print</code> 等命令对 DTB 文件进行操作了。对于 ARM，使用 <code>bootz ${loadaddr} ${rdaddr}:${rdsize}  ${fdtaddr}</code> 命令来启动 Kernel。
+更多背景介绍：<a href="http://www.wowotech.net/device_model/why-dt.html">Device Tree 背景介绍</a></p>
+<h3 id="编译及生成-3">编译及生成：<a hidden class="anchor" aria-hidden="true" href="#编译及生成-3">#</a></h3>
+<p>DTS：Device Tree Source  位于目录   <code>linux/arch/arm/boot/dts</code>
+DTC：Device Tree Compiler 位于目录 <code>linux/scripts/dtc/dtc</code>
+DTB：Device Tree Binary  生成在 <code>linux/arch/arm/boot/dts</code>
+DTB 是由 DTS 通过 DTC 编译而成。
+在构建内核的时候可以使用  <code>make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- dtbs</code> 生成。
+Device Tree Binary 在编译 linux 内核的时候自动根据 <code>arch/arm/boot/dts/Makefile</code> 指定的方式生成，也可以通过 dtc 手动编译：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ ./scripts/dtc/dtc -I dts -O dtb -o ./devicetree.dtb ./beaglebone.dts
+</span></span></code></pre></div><p><strong>DTS 组成和结构专门写一篇文章来讲。</strong></p>
+<h2 id="根文件系统">根文件系统<a hidden class="anchor" aria-hidden="true" href="#根文件系统">#</a></h2>
+<p>根文件系统是内核挂载的第一个文件系统，根文件系统为分层文件树的顶点。它包含对于系统操作很关键的文件和目录，包括设备目录和用于引导系统的程序。根文件系统还包含可安装文件系统以连接到根文件系统层次结构的安装点。
+Linux 只有一个文件树,整个文件系统是以一个树根 &ldquo;/&rdquo; 为起点的，所有的文件和外部设备都以文件的形式挂结在这个文件树上，包括硬盘、软盘、光驱、调制解调器等，这和以 &ldquo;驱动器盘符” 为基础的Windows系统是大不相同的。</p>
+<h3 id="编译及生成-4">编译及生成：<a hidden class="anchor" aria-hidden="true" href="#编译及生成-4">#</a></h3>
+<p>根文件系统的制作可以自己建立各个系统文件夹添加需要的库和启动文件然后打包成可分发的镜像。
+目前一般使用 buildroot 或者 busybox 来制作根文件系统，buildroot 比 busybox 更强大并且包含了 busybox 。</p>
+<p>下载 buildroot 源码：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ git clone git://git.buildroot.net/buildroot
+</span></span></code></pre></div><p>为 Beaglebone 配置 buildroot：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ make beaglebone_defconfig
+</span></span></code></pre></div><p>如果只编译文件系统，需要做一些修改：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ make menuconfig
+</span></span></code></pre></div><p>取消勾选 <code>Kernel --&gt; Linux Kernel</code>，这里不编译内核；
+取消勾选 <code>bootloaders --&gt; u-boot</code>，也不编译 u-boot；</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Target options ---&gt;:
+</span></span><span style="display:flex;"><span>    Floating point strategy <span style="color:#f92672">(</span>NEON<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    ARM instruction set <span style="color:#f92672">(</span>Thumb2<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>Toolchain ---&gt;
+</span></span><span style="display:flex;"><span>    Toolchain type <span style="color:#f92672">(</span>External toolchain<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    Toolchain <span style="color:#f92672">(</span>Linaro ARM 2014.08<span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>    Toolchain origin <span style="color:#f92672">(</span>Toolchain to be downloaded and installed<span style="color:#f92672">)</span> //让 buildroot 自己下载
+</span></span><span style="display:flex;"><span>Target packages ---&gt;
+</span></span><span style="display:flex;"><span>    Networking applications ---&gt;
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> dhcpcd
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> openssh
+</span></span><span style="display:flex;"><span>    Text editors and viewers ---&gt;
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">[</span>*<span style="color:#f92672">]</span> nano
+</span></span><span style="display:flex;"><span>Filesystem images ---&gt;
+</span></span><span style="display:flex;"><span>    ext2/3/4 variant <span style="color:#f92672">(</span>ext4<span style="color:#f92672">)</span> ---&gt;
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">(</span>X<span style="color:#f92672">)</span> ext4
+</span></span></code></pre></div><p>保存然后：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ make
+</span></span></code></pre></div><p>make 的时候 buildroot 会联网下载一些编译工具或者依赖包。最后会在 output 文件夹中生成相应的文件系统，把生成的文件系统烧写进 SD 卡中：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ sudo dd <span style="color:#66d9ef">if</span><span style="color:#f92672">=</span>buildroot/output/images/rootfs.ext4 of<span style="color:#f92672">=</span>/dev/sdc2
+</span></span></code></pre></div><p><strong>值得注意的是用以上命令烧写之后可以看到 SD 卡使用率变成 100%，没有空间写别的文件进去了。</strong>
+这是因为使用 dd 命令不仅仅把文件而是把整个文件系统都烧写到 SD 卡中了，包括磁盘使用率的 metadata 描述。虽然 SD 卡上还有很多剩余空间，但是剩余空间还没有合并到特定的分区上，隐藏在 SD 卡分区的末尾。
+这个时候使用 resize 命令就能合并了（在 ext2、ext3和ext4上都能使用，并且执行命令的时候会提示使用 <code>e2fsck</code> 检查下文件系统，按提示操作即可）：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ sudo resize2fs /dev/sda99
+</span></span></code></pre></div><p>如果我们在 buildroot 中的 toolchain 指定外部编译工具为之前在 Ubuntu 上面 apt-get 的交叉编译器，那么编译的时候则会出现错误信息：</p>
+<blockquote>
+<p>Distribution toolchains are unsuitable for use by Buildroot,
+as they were configured in a way that makes them non-relocatable,
+and contain a lot of pre-built libraries that would conflict with
+the ones Buildroot wants to build.</p>
+</blockquote>
+<p>这是因为 Ubuntu 得到的交叉编译器被配置成不可重定位的，而且包含了一些与 buildroot 相冲突的库，官方解释：</p>
+<blockquote>
+<p>Distro toolchains, i.ie. toolchains coing with distributions, will
+almost invariably be unsuitable for use with Buildroot:</p>
+<ul>
+<li>they are mostly non-relocatable;</li>
+<li>their sysroot is tainted with a lot of extra libraries.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>Especially, the toolchains coming with Ubuntu (really, all the Debian
+familly of distros) are configured with &ndash;sysroot=/ which makes them
+non-relocatable, and they already contain quite some libraries that
+conflict (in any combination of version, API or ABI) with what Buildroot
+wants to build (i.e. extra libraries, some not even present in
+Buildroot&hellip;) but also their mere preence when Buildroot does not expect
+them to be already built (so that a package would enable features when
+it should not).</p>
+</blockquote>
+<p>所以我们要自己<a href="https://www.linaro.org/downloads/">下载</a>交叉编译工具或者让 buildroot 自动下载。</p>
+<h2 id="开始完整启动-linux">开始完整启动 Linux<a hidden class="anchor" aria-hidden="true" href="#开始完整启动-linux">#</a></h2>
+<p>准备：</p>
+<ul>
+<li>SD 卡已经分好两个区，区 1 为 FTA 格式，区 2 为 EXT4 格式，区 1 前面留有 1 MB 的空间供 U-Boot 使用</li>
+<li>U-Boot 已经编译好并把 MLO 和 uboot.img 文件烧写到 SD 卡的前 1M 起始位置，以便处理器用 RAW Mode 启动 U-boot，具体请看<a href="http://jexbat.com/2016/BBB-Uboot/">BeagleBone Black 从零到一 (1 MLO、U-Boot)</a>；</li>
+<li>Linux 已经编译好并且生成了 zImage、System.map；</li>
+<li>initramfs 已经制作好并且生成了 initrd.img；（如果没有特殊的启动前要求此项可以忽略）；</li>
+<li>文件系统已经制作好并且烧入到 SD 卡的 ext4 分区中；</li>
+</ul>
+<p>新建 boot 目录：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ mkdir boot
+</span></span></code></pre></div><p>拷贝内核编译出来的 zImage 和 System.map 至 boot 目录并重命名：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>➜ cp zImage  ~/boot/
+</span></span><span style="display:flex;"><span>➜ cp System.map ~/boot/
+</span></span><span style="display:flex;"><span>➜ mv ~/boot/zImage ~/boot/vmlinuz
+</span></span></code></pre></div><p>把 initrd.img 和 dtb 文件拷贝到 boot 文件夹，再把整个 boot 文件夹拷贝到 ext4 分区的根目录。
+在 FTA 分区中新建 uEnv.txt 文件，让 U-Boot 启动之后自动运行相应的指令启动 Linux：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>## uEnv.txt 可以引用默认的环境变量，在 include/configs/xxx.h 里面定义
+</span></span><span style="display:flex;"><span>## 因为 SDRAM 的地址是从 0x80000000开始的，这里设置镜像、dtb、initrd加载到的地址分别为 0x82000000、0x88000000、0x88080000
+</span></span><span style="display:flex;"><span>loadaddr=0x82000000
+</span></span><span style="display:flex;"><span>fdtaddr=0x88000000
+</span></span><span style="display:flex;"><span>rdaddr=0x88080000
+</span></span><span style="display:flex;"><span>## 设置
+</span></span><span style="display:flex;"><span>initrd_high=0xffffffff
+</span></span><span style="display:flex;"><span>fdt_high=0xffffffff
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>## 设置命令为先打印 debug 信息，然后从第 0 个 MMC 设备的第 2 个分区里面的boot 文件夹中的 vmliuz 文件加载到 loadaddr 处
+</span></span><span style="display:flex;"><span>loadximage=echo debug: [/boot/vmlinuz] ... ; load mmc 0:2 ${loadaddr} /boot/vmlinuz}
+</span></span><span style="display:flex;"><span>## 同样的加载 dtb 文件
+</span></span><span style="display:flex;"><span>loadxfdt=echo debug: [/boot/{fdtfile}] ... ;load mmc 0:2 ${fdtaddr} /boot/${fdtfile}
+</span></span><span style="display:flex;"><span>## 加载 initrd
+</span></span><span style="display:flex;"><span>loadxrd=echo debug: [/boot/initrd.img] ... ; load mmc 0:2 ${rdaddr} /boot/initrd.img; setenv rdsize ${filesize}
+</span></span><span style="display:flex;"><span>## 加载第二个分区的 uEnv.txt 文件
+</span></span><span style="display:flex;"><span>loaduEnvtxt=load mmc 0:2 ${loadaddr} /boot/uEnv.txt ; env import -t ${loadaddr} ${filesize};
+</span></span><span style="display:flex;"><span>## 检查 ${dtb} 字符串长度是否不为 0，如果不为 0 就赋值给 fdtfile
+</span></span><span style="display:flex;"><span>check_dtb=if test -n ${dtb}; then setenv fdtfile ${dtb};fi;
+</span></span><span style="display:flex;"><span>## 运行前面指定的命令
+</span></span><span style="display:flex;"><span>loadall=run loaduEnvtxt; run check_dtb; run loadximage; run loadxrd; run loadxfdt;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>## 设置传递给内核的参数，其中 cmdline 是在第二个分区也就是放置 linux 镜像的分区内的 boot 文件夹中的 uEnv.txt 加载的
+</span></span><span style="display:flex;"><span>mmcargs=setenv bootargs console=tty0 console=${console} ${optargs} ${cape_disable} ${cape_enable} root=/dev/mmcblk0p2 rootfstype=${mmcrootfstype} ${cmdline}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>##  根据前面几篇文章 U-Boot 的配置，启动后会运行 uenvcmd
+</span></span><span style="display:flex;"><span>uenvcmd=run loadall; run mmcargs; echo debug: [${bootargs}] ... ; echo debug: [bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr}] ... ; bootz ${loadaddr} ${rdaddr}:${rdsize} ${fdtaddr};
+</span></span></code></pre></div><p>SD 卡中 ext4 分区中 boot 文件夹中再创建一个 uEnv.txt，这边的 uEnv.txt 便于向 U-Boot 传递一些内核参数之类的，不用每次换了内核之类的都去修改 U-Boot 那边的文件:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-txt" data-lang="txt"><span style="display:flex;"><span>uname_r=3.8.13-bone79
+</span></span><span style="display:flex;"><span>#uuid=
+</span></span><span style="display:flex;"><span>#dtb=
+</span></span><span style="display:flex;"><span>cmdline=coherent_pool=1M quiet init=/lib/systemd/systemd cape_universal=enable
+</span></span></code></pre></div><p>都设置好了之后，把 SD 卡插入 beaglebone 中并且按住 S2 键上电就能从 SD 卡中启动了。</p>
+<h2 id="参考">参考：<a hidden class="anchor" aria-hidden="true" href="#参考">#</a></h2>
+<ul>
+<li><a href="http://www.linfo.org/vmlinuz.html">vmlinuz Definition</a></li>
+<li><a href="http://www.cnblogs.com/wwang/archive/2010/10/27/1862222.html">制作 initramfs/initrd 镜像</a></li>
+<li><a href="http://blog.csdn.net/tommy_wxie/article/details/8039695">System.map 解析</a></li>
+<li><a href="http://www.wowotech.net/device_model/why-dt.html">Device Tree：背景介绍</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/linux/l-k26initrd/">Linux2.6 内核的 Initrd 机制解析</a></li>
+<li><a href="http://blog.linux.org.tw/~jserv/archives/001954.html">深入理解 Linux 2.6 的 initramfs 機制 (上)</a></li>
+<li><a href="http://unix.stackexchange.com/questions/122100/why-do-i-need-initramfs">Why do I need initramfs ?</a></li>
+<li><a href="http://landley.net/writing/rootfs-howto.html">How to use initramfs</a></li>
+<li><a href="http://nairobi-embedded.org/initramfs_tutorial.html">Initramfs Tutorial</a></li>
+<li><a href="https://www.kernel.org/doc/Documentation/filesystems/ramfs-rootfs-initramfs.txt">ramfs, rootfs and initramfs</a></li>
+</ul>
+<hr>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://tinyx.me/tags/BeagleBone/">BeagleBone</a></li>
+      <li><a href="https://tinyx.me/tags/Linux/">Linux</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://tinyx.me/post/NAS-Shadowsocks/">
+    <span class="title">« Prev Page</span>
+    <br>
+    <span>Synology DS216Play 安装 ShadowSocks</span>
+  </a>
+  <a class="next" href="https://tinyx.me/post/BeagleBone-Image/">
+    <span class="title">Next Page »</span>
+    <br>
+    <span>解析 BeagleBone Black 官方镜像</span>
+  </a>
+</nav>
+
+  </footer><div id="utter-container"></div>
+  <script src="https://utteranc.es/client.js"
+      repo= 'JesseGuoX/hugoblogtalks'
+      issue-term= "pathname"
+      theme= ''
+      crossorigin= "anonymous"
+      async>
+  </script>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2022 <a href="https://tinyx.me">TinyX</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

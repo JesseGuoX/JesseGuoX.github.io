@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>TinyX</title>
+    <link>https://tinyx.me/</link>
+    <description>Recent content on TinyX</description>
+    <image>
+      <url>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 15 May 2016 15:33:01 +0000</lastBuildDate><atom:link href="https://tinyx.me/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Synology DS216Play 安装 ShadowSocks</title>
+      <link>https://tinyx.me/post/NAS-Shadowsocks/</link>
+      <pubDate>Sun, 15 May 2016 15:33:01 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/NAS-Shadowsocks/</guid>
+      <description>最近一段时间买了个 NAS，用了之后感觉确实很不错，基本上就是一个家用的服务器，什么东西都可以往上扔。唯一后悔的就是买便宜了（毕竟穷），DS216Play 使用的是 STM STiH412 的 32位处理器，既然是 32位，所以一个大杀器－Docker 没法用了，也就是很多基于 Docker 的开箱即用第三方软件没法用。还有就是内置的 VideoStation 是从 IMDb 抓取封面信息，而 IMDb 是被墙了的。于是准备安装个 SS（ShadowSocks），顺便把 Dropbox 里面将近 100G 文件同步回来，之前买的 SSLedge 一个月才 30G 流量，要同步三个月才能完全把 Dropbox 上面文件同步回来，自建的 SS 直接是 1T，相当划算。
+安装 ipkg 开始之前需要安装 ipkg 包管理器，这样后面很多软件包就能使用了。因为没有找到适合 STiH412 处理器的安装脚本，所以我们下一个相似的：
+$ wget http://ipkg.nslu2-linux.org/feeds/optware/cs08q1armel/cross/unstable/syno-mvkw-bootstrap_1.2-7_arm.xsh $ chmod 700 syno-mvkw-bootstrap_1.2-7_arm.xsh $ sh syno-mvkw-bootstrap_1.2-7_arm.xsh 运行之后会报错，并生成一个 bootstrap 目录，进去 bootstrap 目录并修改 bootstrap.sh 文件
+ #if ! grep Feroceon-KW /proc/cpuinfo &amp;gt;/dev/null 2&amp;gt;&amp;amp;1; then # echo &amp;#34;Error: CPU not Marvell Kirkwood, probably wrong bootstrap.</description>
+    </item>
+    
+    <item>
+      <title>BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)</title>
+      <link>https://tinyx.me/post/BBB-Prepare-booting/</link>
+      <pubDate>Sun, 17 Apr 2016 15:06:55 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/BBB-Prepare-booting/</guid>
+      <description>基于 Linux 3.8
+内核启动 BeagleBone Black 从零到一 (1 MLO、U-Boot) 这篇文章里讲到 U-Boot 启动之后会运行 uEnv.txt 文件里面 uenvcmd 指代的命令，我们也通常把加载镜像文件等命令写在这里。
+U-Boot 有很多方法能启动内核，通常使用的是 bootm 或者 bootz 命令：
+U-Boot# help bootz bootz - boot Linux zImage image from memory  Usage: bootz [addr [initrd[:size]] [fdt]]  - boot Linux zImage stored in memory  The argument &amp;#39;initrd&amp;#39; is optional and specifies the address  of the initrd in memory. The optional argument &amp;#39;:size&amp;#39; allows  specifying the size of RAW initrd.</description>
+    </item>
+    
+    <item>
+      <title>解析 BeagleBone Black 官方镜像</title>
+      <link>https://tinyx.me/post/BeagleBone-Image/</link>
+      <pubDate>Sat, 26 Mar 2016 19:37:17 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/BeagleBone-Image/</guid>
+      <description>BeagleBone 官方镜像： BeagleBoard.org Latest Firmware Images
+下载推荐的镜像: bone-debian-7.9-lxde-4gb-armhf-2015-11-12-4gb.img.xz
+.xz 文件解压：
+xz -d bone-debian-7.9-lxde-4gb-armhf-2015-11-12-4gb.img.xz 得到 .img 文件。
+挂载镜像 在 Linux 下挂载 .img 文件，
+可见直接挂载的话会出现：mount: you must specify the filesystem type。 首先，要说明一下的是，这情况是由于 img 文件的开头包含了 MBR，以致于系统无法识别。img 文件相当于一个包含操作系统的硬盘，而我们只需要挂载它的文件系统部分，所以需要绕过 MBR。
+绕过 MBR 挂载文件系统有两种方法。
+第一种： 首先使用 fdisk 查看分区信息：
+看到第一个分区从第 2048 个扇区开始， Units = sectors of 1 * 512 = 512 bytes，Unit ＝ 2048 ＊ 512 ＝ 1048576，所以我们偏移 1028576 个字节挂载第一个分区； 第二个分区从第 198656 个扇区开始，Unit = 198656 * 512 = 101711872，偏移 101711872 个字节挂载第二个分区；</description>
+    </item>
+    
+    <item>
+      <title>BeagleBone Black 从零到一 (2 MLO、U-Boot)</title>
+      <link>https://tinyx.me/post/BBB-Uboot/</link>
+      <pubDate>Tue, 22 Mar 2016 20:57:50 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/BBB-Uboot/</guid>
+      <description>更新：2016-04-01
+什么是 U-Boot 熟悉嵌入式开发的应该都听过它，U-boot 就是启动系统前的一段引导程序，虽然是引导程序，但是功能非常强大。
+这一篇主要讲解如何从无到有运行 U-Boot，关于 U-Boot 引导 Linux 的部分放在另外一篇文章讲解。
+U-Boot 之前的版本以版本号命名如：0.1.0, 0.2.0 这几年改为了以时间和日期命名：U-Boot 2016.03。
+使用 git 获得 U-Boot 的源码：
+git clone git://git.denx.de/u-boot.git 目前我使用的是 2016.02 的版本。
+MLO 及其启动过程 上一篇文章，我们了解了 BeagleBone 有个 SPL 过程，就在这个时候读取 MLO 文件，MLO 文件其实是个精简版的 U-Boot，也是由 U-Boot 生成，但是功能有限，只初始化了部分资源如 DDR，然后启动 U-Boot。
+MLO 文件是如何编译出来的 分析 MLO 的编译过程之前需要知道编译原理和 Makefile 等相关知识。 我们先找找 Makefile 看看能不能找到什么。建议使用 Sublime 编辑器。用全局查找功能查找 MLO 关键字。
+找到 u-boot/scripts/Makefile.spl 文件 117行：
+MLO MLO.byteswap: $(obj)/u-boot-spl.bin FORCE 	$(call if_changed,mkimage) 可以看到 MLO 文件是由 u-boot-spl.</description>
+    </item>
+    
+    <item>
+      <title>BeagleBone Black 从零到一 (1 启动流程)</title>
+      <link>https://tinyx.me/post/BBB-bootmode/</link>
+      <pubDate>Wed, 09 Mar 2016 19:56:06 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/BBB-bootmode/</guid>
+      <description>BeagleBone 的核心处理器是 AM3358，理解启动过程需要查看相应的数据手册。
+AM335x 有四个不同的启动阶段：
+ ROM SPL（Secondary Program Loader） U-BOOT Linux Kernel  为什么 AM335x 有多个启动阶段呢？直接从启动源加载 U-Boot 启动不是很方便？
+首先，第一步的 ROM Code 不可能太复杂，ROM大小是一个限制，最重要的还是因为其所能获取的系统信息太少，所以处理器只能使用简单的方法去寻找能完成复杂功能的代码，而后将处理器初始化工作交给它来完成。其次，SPL 也不能很复杂，因为 ROM Code 只能将它加载到处理器内部 RAM 中运行，一般处理器的内部 RAM 都要小于128KB，其大小注定其不能完成很复杂的功能，所以 SPL 需要初始化 DDR 再加更复杂的代码加载到 DDR 中运行。到了在 DDR RAM 中执行的 Bootloader（U-Boot算一个），其功能就比较完善了，此时就可以启动操作系统了。
+第一阶段：ROM Code ROM Code 是芯片上电复位之后第一块自动运行的代码。ROM Code 固化在芯片中不能被用户修改。 ROM Code 存储在片上地址 0x40000000-0x40040000 处。
+ROM Code 有两个主要的功能：
+ 配置设备并初始化主要的外设 建立堆栈 配置开门狗定时器1（设置到三分钟） 配置 PLL 和系统时钟 为下一阶段启动做准备 为下一阶段启动检查启动源（SPL） 把下一启动阶段的 bootloader 代码移动到内存中准备运行  ROM Code 针对不同的启动源有不同的启动过程，但最终还是为了把启动源的代码搬运至内部 RAM 中运行，这里我们主要解析下针对 MMC/SD 卡设备，它的启动过程是怎么样的。</description>
+    </item>
+    
+    <item>
+      <title>BeagleBone Black 从零到一 (0 硬件及环境搭建)</title>
+      <link>https://tinyx.me/post/BBB0-Hardware/</link>
+      <pubDate>Sat, 05 Mar 2016 20:44:52 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/BBB0-Hardware/</guid>
+      <description>&lt;p&gt;买了个 BeagleBone Black 准备从底层到应用层把整个 Linux 开发流程过一遍，并写一系列教程。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>建立一个便捷高效的嵌入式 Linux 开发环境</title>
+      <link>https://tinyx.me/post/Running-headless-vm/</link>
+      <pubDate>Sat, 23 Jan 2016 22:16:55 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/Running-headless-vm/</guid>
+      <description>&lt;p&gt;更新：2016-04-15&lt;/p&gt;
+&lt;h1 id=&#34;0-前言&#34;&gt;0 前言&lt;/h1&gt;
+&lt;p&gt;我们经常需要在 Linux 环境下进行嵌入式开发，但是目前又不能完全抛弃 Windows 或者 OS X，所以我们经常需要用虚拟机来搭建开发环境，但是虚拟机又很臃肿，而且如果配置不高的电脑会运行的很慢。有没有一种方便在各电脑间拷贝运行速度又很快的解决方案呢？当然是有的。以下是几种解决方案。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>EtherCAT 基础知识汇总</title>
+      <link>https://tinyx.me/post/EtherCAT-Note/</link>
+      <pubDate>Sun, 10 Jan 2016 14:51:58 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/EtherCAT-Note/</guid>
+      <description>&lt;h2 id=&#34;特性&#34;&gt;特性&lt;/h2&gt;
+&lt;p&gt;EtherCAT（以太网控制自动化技术）是一个以以太网为基础的开放架构的现场总线系统，EtherCAT名称中的CAT为Control Automation Technology（控制自动化技术）首字母的缩写。最初由德国倍福自动化有限公司(Beckhoff Automation GmbH) 研发。EtherCAT为系统的实时性能和拓扑的灵活性树立了新的标准，同时，它还符合甚至降低了现场总线的使用成本。EtherCAT的特点还包括高精度设备同步，可选线缆冗余，和功能性安全协议(SIL3)。&lt;/p&gt;
+&lt;!-- raw HTML omitted --&gt;</description>
+    </item>
+    
+    <item>
+      <title>利用 TwinCAT 3 搭建 EtherCAT 主站环境</title>
+      <link>https://tinyx.me/post/Setup-TwinCat/</link>
+      <pubDate>Wed, 06 Jan 2016 19:28:08 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/Setup-TwinCat/</guid>
+      <description>&lt;h2 id=&#34;环境&#34;&gt;环境&lt;/h2&gt;
+&lt;p&gt;网络上很多都是使用的 TwinCAT 2 和 WireShark 1.4 来建立主站程序并捕捉 EtherCAT 数据，这里做个新版本的教程，新的软件较旧软件使用方便。&lt;/p&gt;
+&lt;h3 id=&#34;软件&#34;&gt;软件&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.beckhoff.com/english/download/tc3-download-xae.htm?id=1948695119487514&#34;&gt;TwinCAT 3.1 – eXtended Automation Engineering (XAE) &lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.wireshark.org/#download&#34;&gt;WireShark 2&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;硬件&#34;&gt;硬件&lt;/h3&gt;
+&lt;p&gt;PC利用 TwinCAT 作为主站，从站采用的是基于 ET1100 的从站开发板。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>如何解析 PROFINET 周期性数据帧</title>
+      <link>https://tinyx.me/post/decode-PROFINET-frames/</link>
+      <pubDate>Thu, 24 Dec 2015 15:29:00 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/decode-PROFINET-frames/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;原文：&lt;a href=&#34;https://kb.hilscher.com/pages/viewpage.action?pageId=22830458&#34;&gt;How to decode cyclic PROFINET frames?&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;前言&#34;&gt;前言&lt;/h2&gt;
+&lt;h3 id=&#34;iops&#34;&gt;IOPS&lt;/h3&gt;
+&lt;p&gt;IO Provider Status
+表示 IO 数据的提供状态，
+用来标识数据是否有效，避免应用建立一个另外的诊断信息请求，节省资源。&lt;/p&gt;
+&lt;h3 id=&#34;iocs&#34;&gt;IOCS&lt;/h3&gt;
+&lt;p&gt;IO Consumer Status
+表示 IO 数据的消费状态。&lt;/p&gt;
+&lt;h3 id=&#34;如何理解iocs和iops&#34;&gt;如何理解IOCS和IOPS&lt;/h3&gt;</description>
+    </item>
+    
+    
+    
+  </channel>
+</rss>

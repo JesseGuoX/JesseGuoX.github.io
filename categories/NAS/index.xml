@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>NAS on TinyX</title>
+    <link>https://tinyx.me/categories/NAS/</link>
+    <description>Recent content in NAS on TinyX</description>
+    <image>
+      <url>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 15 May 2016 15:33:01 +0000</lastBuildDate><atom:link href="https://tinyx.me/categories/NAS/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Synology DS216Play 安装 ShadowSocks</title>
+      <link>https://tinyx.me/post/NAS-Shadowsocks/</link>
+      <pubDate>Sun, 15 May 2016 15:33:01 +0000</pubDate>
+      
+      <guid>https://tinyx.me/post/NAS-Shadowsocks/</guid>
+      <description>最近一段时间买了个 NAS，用了之后感觉确实很不错，基本上就是一个家用的服务器，什么东西都可以往上扔。唯一后悔的就是买便宜了（毕竟穷），DS216Play 使用的是 STM STiH412 的 32位处理器，既然是 32位，所以一个大杀器－Docker 没法用了，也就是很多基于 Docker 的开箱即用第三方软件没法用。还有就是内置的 VideoStation 是从 IMDb 抓取封面信息，而 IMDb 是被墙了的。于是准备安装个 SS（ShadowSocks），顺便把 Dropbox 里面将近 100G 文件同步回来，之前买的 SSLedge 一个月才 30G 流量，要同步三个月才能完全把 Dropbox 上面文件同步回来，自建的 SS 直接是 1T，相当划算。
+安装 ipkg 开始之前需要安装 ipkg 包管理器，这样后面很多软件包就能使用了。因为没有找到适合 STiH412 处理器的安装脚本，所以我们下一个相似的：
+$ wget http://ipkg.nslu2-linux.org/feeds/optware/cs08q1armel/cross/unstable/syno-mvkw-bootstrap_1.2-7_arm.xsh $ chmod 700 syno-mvkw-bootstrap_1.2-7_arm.xsh $ sh syno-mvkw-bootstrap_1.2-7_arm.xsh 运行之后会报错，并生成一个 bootstrap 目录，进去 bootstrap 目录并修改 bootstrap.sh 文件
+ #if ! grep Feroceon-KW /proc/cpuinfo &amp;gt;/dev/null 2&amp;gt;&amp;amp;1; then # echo &amp;#34;Error: CPU not Marvell Kirkwood, probably wrong bootstrap.</description>
+    </item>
+    
+  </channel>
+</rss>

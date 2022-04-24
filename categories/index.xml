@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Categories on TinyX</title>
+    <link>https://tinyx.me/categories/</link>
+    <description>Recent content in Categories on TinyX</description>
+    <image>
+      <url>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
+      <link>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Sun, 15 May 2016 15:33:01 +0000</lastBuildDate><atom:link href="https://tinyx.me/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>NAS</title>
+      <link>https://tinyx.me/categories/NAS/</link>
+      <pubDate>Sun, 15 May 2016 15:33:01 +0000</pubDate>
+      
+      <guid>https://tinyx.me/categories/NAS/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>BeagleBone</title>
+      <link>https://tinyx.me/categories/BeagleBone/</link>
+      <pubDate>Sun, 17 Apr 2016 15:06:55 +0000</pubDate>
+      
+      <guid>https://tinyx.me/categories/BeagleBone/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Linux</title>
+      <link>https://tinyx.me/categories/Linux/</link>
+      <pubDate>Sat, 23 Jan 2016 22:16:55 +0000</pubDate>
+      
+      <guid>https://tinyx.me/categories/Linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>EtherCAT</title>
+      <link>https://tinyx.me/categories/EtherCAT/</link>
+      <pubDate>Sun, 10 Jan 2016 14:51:58 +0000</pubDate>
+      
+      <guid>https://tinyx.me/categories/EtherCAT/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>PROFINET</title>
+      <link>https://tinyx.me/categories/PROFINET/</link>
+      <pubDate>Thu, 24 Dec 2015 15:29:00 +0000</pubDate>
+      
+      <guid>https://tinyx.me/categories/PROFINET/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

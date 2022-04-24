@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>EtherCAT 基础知识汇总 | TinyX</title>
+<meta name="keywords" content="EtherCAT">
+<meta name="description" content="特性
+EtherCAT（以太网控制自动化技术）是一个以以太网为基础的开放架构的现场总线系统，EtherCAT名称中的CAT为Control Automation Technology（控制自动化技术）首字母的缩写。最初由德国倍福自动化有限公司(Beckhoff Automation GmbH) 研发。EtherCAT为系统的实时性能和拓扑的灵活性树立了新的标准，同时，它还符合甚至降低了现场总线的使用成本。EtherCAT的特点还包括高精度设备同步，可选线缆冗余，和功能性安全协议(SIL3)。
+">
+<meta name="author" content="X">
+<link rel="canonical" href="https://tinyx.me/post/EtherCAT-Note/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.min.48a18943c2fc15c38a372b8dde1f5e5dc0bc64fa6cb90f5a817d2f8c76b7f3ae.css" integrity="sha256-SKGJQ8L8FcOKNyuN3h9eXcC8ZPpsuQ9agX0vjHa3864=" rel="preload stylesheet" as="style">
+<script defer crossorigin="anonymous" src="/assets/js/highlight.min.4dcb3c4f38462f66c6b6137227726f5543cb934cca9788f041c087e374491df2.js" integrity="sha256-Tcs8TzhGL2bGthNyJ3JvVUPLk0zKl4jwQcCH43RJHfI="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<link rel="icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="16x16" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="apple-touch-icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<link rel="mask-icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --hljs-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript><meta property="og:title" content="EtherCAT 基础知识汇总" />
+<meta property="og:description" content="特性
+EtherCAT（以太网控制自动化技术）是一个以以太网为基础的开放架构的现场总线系统，EtherCAT名称中的CAT为Control Automation Technology（控制自动化技术）首字母的缩写。最初由德国倍福自动化有限公司(Beckhoff Automation GmbH) 研发。EtherCAT为系统的实时性能和拓扑的灵活性树立了新的标准，同时，它还符合甚至降低了现场总线的使用成本。EtherCAT的特点还包括高精度设备同步，可选线缆冗余，和功能性安全协议(SIL3)。
+" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://tinyx.me/post/EtherCAT-Note/" /><meta property="og:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/><meta property="article:section" content="post" />
+<meta property="article:published_time" content="2016-01-10T14:51:58&#43;00:00" />
+<meta property="article:modified_time" content="2016-01-10T14:51:58&#43;00:00" /><meta property="og:site_name" content="ExampleSite" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/>
+
+<meta name="twitter:title" content="EtherCAT 基础知识汇总"/>
+<meta name="twitter:description" content="特性
+EtherCAT（以太网控制自动化技术）是一个以以太网为基础的开放架构的现场总线系统，EtherCAT名称中的CAT为Control Automation Technology（控制自动化技术）首字母的缩写。最初由德国倍福自动化有限公司(Beckhoff Automation GmbH) 研发。EtherCAT为系统的实时性能和拓扑的灵活性树立了新的标准，同时，它还符合甚至降低了现场总线的使用成本。EtherCAT的特点还包括高精度设备同步，可选线缆冗余，和功能性安全协议(SIL3)。
+"/>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Posts",
+      "item": "https://tinyx.me/post/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  3 ,
+      "name": "EtherCAT 基础知识汇总",
+      "item": "https://tinyx.me/post/EtherCAT-Note/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "EtherCAT 基础知识汇总",
+  "name": "EtherCAT 基础知识汇总",
+  "description": "特性 EtherCAT（以太网控制自动化技术）是一个以以太网为基础的开放架构的现场总线系统，EtherCAT名称中的CAT为Control Automation Technology（控制自动化技术）首字母的缩写。最初由德国倍福自动化有限公司(Beckhoff Automation GmbH) 研发。EtherCAT为系统的实时性能和拓扑的灵活性树立了新的标准，同时，它还符合甚至降低了现场总线的使用成本。EtherCAT的特点还包括高精度设备同步，可选线缆冗余，和功能性安全协议(SIL3)。\n",
+  "keywords": [
+    "EtherCAT"
+  ],
+  "articleBody": "特性 EtherCAT（以太网控制自动化技术）是一个以以太网为基础的开放架构的现场总线系统，EtherCAT名称中的CAT为Control Automation Technology（控制自动化技术）首字母的缩写。最初由德国倍福自动化有限公司(Beckhoff Automation GmbH) 研发。EtherCAT为系统的实时性能和拓扑的灵活性树立了新的标准，同时，它还符合甚至降低了现场总线的使用成本。EtherCAT的特点还包括高精度设备同步，可选线缆冗余，和功能性安全协议(SIL3)。\n性能    过程数据 更新时间     265 个分布式数字 I/O 量 11 us ＝ 0.01 ms   1000 个分布式数字 I/O 量 30 us   200 个 16 位的模拟 I/O 量 50 us  20 kHz   100 个包含 8 字节输入输出数据的伺服轴 100 us   1 个现场总线网关（1486 字节的输入和 1486字节的输出数据） 150 us    ISO/OSI 模型 在标准以太网的七层 OSI 模型中 EtherCAT 只定义了物理层、数据链路层和应用层这三层协议（如下图）。\n网络组成 EtherCAT 是主从式的结构。\n主站 EtherCAT 主站使用标准的以太网 MAC。\n从站 EtherCAT 从站需要使用特殊的硬件芯片（EtherCAT Slave Controller）来达到微秒级周期时间的实时性能。从站不需要微处理器就可以实现 EtherCAT 通信。可以通过 I/O 接口实现的简单设备可以只由 ESC 和其下的 PHY，变压器和 RJ45 接头组成。给从站的过程数据接口是32位的I/O接口。这种从站没有可配置的参数，所以不需要软件或邮箱协议。更复杂的可配置从站有使用一个微处理器。\n在报文经过从站时， ESC 从报文中提取发送给自己的输出命令数据并将其存储到内部存储区，输入数据从内部存储区又被写到相应的子报文中。数据的提取和插入都是由数据链路层硬件完成的。\n 从站可以最多有 4 个 EtherCAT 端口。 如果有一个端口是关闭的，那么控制器会自动转发到下一个端口。端口可以由连接自动打开或关闭，写可以通过 EtherCAT 命令修改。 EtherCAT 帧处理和转发顺序由逻辑端口配置（如下图）。  拓扑结构 EtherCAT 支持几乎所有拓扑结构。因此，源于现场总线的总线形结构也可用于以太网。将总线和分支结构相结合特别有助于系统布线。所有接口都位于耦合器上，无需使用附加交换机。\n黄色的实线为以太网线缆，绿色虚线为 EtherCAT 帧的路径。\n所有的数据帧都被第一个从站设备转发到后续的节点，最后一个从站设备将数据帧返回到主站。\n节点个数 EtherCAT 网络最多可以连接 65535 个设备。\n寻址方式 如上图，一个 EtherCAT 网段相当于一个以太网设备，主站首先使用以太网数据帧头的 MAC 地址寻址到网段，然后使用 EtherCAT 子报文头中的地址寻址到段内设备。\n网段寻址 直接模式（无交换机） 一个 EtherCAT 网段直接连接到主站设备的标准以太网口（如下图），此时主站使用广播 MAC 地址寻址，帧报文中目的 MAC 地址为 FF-FF-FF-FF-FF-FF。\n开放模式 EtherCAT 网段连接到以太网交换机上（如下图），我们就有多个网段，此时每个网段都需要一个 MAC 地址，主站发送的 EtherCAT 数据帧中目的地址是它所控制的网段的 MAC 地址。\nEtherCAT 网段中第一个从站设备有一个 ISO/IEC 8802.3 的 MAC 地址，这个地址表示了整个网段，这个从站称为段地址从站，它能够交换帧内的目的地址区和源地址区。\n段内寻址 段内寻址指的是当我们寻址到一个网段中后，改网段中的具体的设备如何寻址，EtherCAT 有以下几种方式。\n自增量寻址（Auto Increment Addressing） 自增量寻址必须只能在 EtherCAT 系统启动的时候用来扫描总线或者偶尔检测到新设备的时候。在经过自增量寻址之后主站会给每个从站分配一个固定的地址，以便用于固定地址寻址。\n特点：\n 每个从站根据位置分配一个十六位的负数自增量地址. 当所读取的从站地址等于零时将被处理。 每次从站地址加一 偏移地址存储在设备的内存空间中。 通常用于扫描硬件的配置信息。  固定寻址（Fixed Addressing） 固定地址寻址一般用于主站与从站以邮箱方式的通信中（非周期性数据通信在 EtherCAT 中称为邮箱数据通信），在邮箱方式通信的时候 EtherCAT 主站根据从站的固定地址寻址到所要交换数据的从站，数据只在两者之间进行交换，适用于主站与某一个从站交换相对较大的数据。\n特点：\n 每个从站有一个固定的地址（16 bit 所以最大节点数为 65535） 通常在硬件配置扫描的过程中被分配。 与从站的位置无关 当断电后固定地址丢失  逻辑寻址（Logical Addressing） 逻辑寻址一般用在过程数据的通信过程中（周期性），每个从站的物理地址通过 FMMU（Fieldbus Memory Management Unit） 被映射到一个指定的逻辑地址当中。这样做的好处是主站想要操作某一个从站时可以只操作固定的逻辑地址而不必知道所操作的逻辑地址所对应的从站地址，这样就大大减轻了控制系统的负担，加快了相应的速度。\n其他 EtherCAT 设备可以有两个配置的地址，一个是由主站分配（Configured Station Address），另一个是存储在 ESC EEPROM 中并且能由从站应用改写（Configured Station Alias Address）。主站分配的地址从站不能修改，存储在 EEPROM 中的地址只在第一次上电或者复位的时候装载。\nEtherCAT 主站一开始通过自增量寻址访问各个从站并分配固定地址，接下来通过固定寻址访问配置寄存器（非周期性），通过逻辑寻址访问过程数据（周期性）。\n高可靠性、冗余 仅需在主站设备端增加使用一个标准的以太网端口（无需专用网卡或接口），并将单一的电缆从总线型拓扑结构转变为环型拓扑结构即可增加冗余特性（见下图）。当设备或电缆发生故障时，也仅需一个周期即可完成切换。因此，即使是针对运动控制要求的应用，电缆出现故障时也不会有任何问题。EtherCAT也支持热备份的主站冗余。由于在环路中断时EtherCAT从站控制器芯片将立刻自动返回数据帧，一个设备的失败不会导致整个网络的瘫痪。例如，拖链设备可以配置为分支拓扑以防线缆断开。\n存储同步管理（SyncManager） ESC 使用了存储同步管理通道 SM（SyncManager）来保证主站与本地应用数据交换的一致性和安全性，并在数据状态改变时产生中断来通知对方。SM 通道把存储空间组织为一定大小的缓存区，由硬件控制对缓存区的访问。缓存区的数量和数据交换方向可配置。SM 由主站进行配置，\n必须从起始地址开始操作一个缓存区，否则操作被拒绝。操作其实地址后，就可以操作整个缓存区。允许再次操作其实地址，并且可以分多次操作。操作缓存区的结束地址表示缓存区操作结束，随后缓存区状态改变，同时可以产生一个中断信号或看门狗触发脉冲。不允许在一个数据帧内两次操作结束地址。\nEtherCAT 定义了两种 SM 运行模式：\n1）缓存类型（常用于过程数据通信）\n 使用 3 个缓存区保证可以随时接收和交付最新的数据； 经常有一个可写入的空闲缓存区； 在第一次写入之后，经常有一个连续可读的数据缓存区。  2）邮箱类型\n 使用一个缓存区，支持握手机制； 对数据溢出产生保护； 只有写入新数据才可以进行成功的读操作； 只有成功读取之后才允许再次写入。  P65\n现场总线内存管理单元（FMMU） 逻辑寻址时，从站地址并不是单独定义的，而是使用寻址段内 4 GByte 逻辑地址空间中的一段区域。报文内的 32 位地址区作为整体的数据逻辑地址完成设备的逻辑寻址。\n逻辑寻址由 FMMU 实现，FMMU 功能位于每个 ESC 内部，将从站本地物理存储地址映射到网段内逻辑地址。\nFMMU 单元由主站设备配置，并在数据链路启动过程中传送给从站设备。\n   FMMU 配置寄存器 数值     数据逻辑起始地址 0x00014711   数据长度（字节数，按跨字节计算） 2   数据逻辑起始位 3   数据逻辑终止位 0   从站物理内存起始地址 0x0F01   物理内存起始位 1   操作类型（1：只读，2：只写，3：读写） 2   激活（使能） 1    从站设备收到一个数据逻辑寻址的 EtherCAT 子报文时，检查是否有 FMMU 单元地址匹配。如果有，它将输入类型数据插入到 EtherCAT 子报文数据区的对应位置，以及从 EtherCAT 子报文数据区的对应位置抽取输出类型数据。使用逻辑寻址可以灵活地组织控制系统，优化系统结构。逻辑寻址方式特别适用于传输或交换周期性过程数据。 FMMU 操作具有以下功能特点：\n 每个数据逻辑地址字节只允许被一个 FMMU 读和另一个 FMMU 写操作，或被同一个 FMMU 进行读写交换操作； 对一个逻辑地址的读写操作与使用一个 FMMU 读和另一个 FMMU 写操作具有相同的结果； 按位读写操作不影响报文中没有被映射到的其他位，因此允许将几个从站 ECS 中的位数据映射到主站的同一个逻辑字节； 读写一个未配置的逻辑地址空间不会改变其内容。  分布时钟（Distributed Clock） 分布时钟可以使所有 EtherCAT 设备使用相同的系统时钟，从而控制各设备任务的同步执行。从站设备可以根据同步的系统时间产生同步信号，用于中断控制或触发数字量输入输出。支持分布式时钟的从站称为 DC 从站。分布式时钟具有以下功能：\n 实现从站之间时钟同步； 为主站提供同步时钟； 产生同步的输出信号 SYNC； 为输入事件产生精确的时间标记； 产生同步的中断； 同步更新数字量输出； 同步采用数字量输入。  描述 分布时钟机制使所有的从站都同步于一个参考时钟。主站连接的第一个具有分布时钟功能的从站作为参考时钟，以参考时钟来同步其他设备和主站的从时钟。为了实现精确的时钟同步控制，必须测量和计算数据传输延时和本地时钟偏移，并补偿本地时钟的漂移。同步时钟涉及到如下 6 个时间概念：\n系统时间 系统时间是分布时钟使用的系统计时。系统时间从 2000 年 1 月 1 日零点开始，使用 64 位二进制变量表示，单位为纳秒（ns），最大可以计时 500 年。也可以使用 32 位二进制变量表示，32 位时间值最大可以表示 4.2 s，通常用于通信和时间标记。\n参考时钟和从时钟 EtherCAT 协议规定主站连接的第一个具有分布时钟功能的从站作为参考时钟，其他从站的时钟称为从时钟。参考时钟被用于同步其他从站设备和主站时钟。参考时钟提供 EtherCAT 系统时间。\n主站时钟 EtherCAT 主站也具有计时功能，称为主站时钟。主站时钟可以在分布时钟系统中作为从时钟被同步。在初始化阶段，主站可以按照系统时间的格式发送主站时间给参考时钟从站，使分布时钟使用系统时间计时。\n本地时钟、其初始偏移量和时钟漂移 每一个 DC 从站都有本地时钟，本地时钟独立运行，使用本地时钟信号计时。系统启动时，各从站的本地时钟和参考时钟之间有一定的差值，称为时钟初始偏移量。在运行过程中，由于参考时钟和 DC 从站时钟使用各自的时钟源等原因，它们的计时周期存在一定的漂移，这将导致时钟运行不同步，本地时钟产生漂移。因此，必须对时钟初始偏移和时钟漂移都进行补偿。\n本地系统时间 每个 DC 从站的本地时钟经过补偿和同步之后都产生了一个本地系统时间，分布时钟同步机制就是使各个从站的本地系统时间保持一致。参考时钟也是相应从站的本地系统时钟。\n传输延时 数据帧在从站时间传输时会产生一定的延时。其中包括设备内部和物理连接延时。所以在同步从时钟时，应该考虑参考时钟与各个从时钟之间的传输延时。\nTBD FMMU EtherCAT 帧解析 EtherCAT 命令 应用层协议 分布式时钟\\如何同步IO 模块化的设备概要文件 syncmanager7683\n参考：\n EtherCAT communication EtherCAT - 以太网现场总线 《工业以太网现场总线 EtherCAT 驱动程序设计及应用》- 郇极、刘艳红  ",
+  "wordCount" : "350",
+  "inLanguage": "en",
+  "datePublished": "2016-01-10T14:51:58Z",
+  "dateModified": "2016-01-10T14:51:58Z",
+  "author":{
+    "@type": "Person",
+    "name": "X"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://tinyx.me/post/EtherCAT-Note/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TinyX",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tinyx.me/%3Clink%20/%20abs%20url%3E"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://tinyx.me" accesskey="h" title="TinyX 👾 (Alt + H)">TinyX 👾</a>
+            <span class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </span>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://tinyx.me/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/categories/" title="Categories">
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://tinyx.me/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="https://tinyx.me">Home</a>&nbsp;»&nbsp;<a href="https://tinyx.me/post/">Posts</a></div>
+    <h1 class="post-title">
+      EtherCAT 基础知识汇总
+    </h1>
+    <div class="post-meta"><span title='2016-01-10 14:51:58 +0000 UTC'>January 10, 2016</span>&nbsp;·&nbsp;X
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#%e7%89%b9%e6%80%a7" aria-label="特性">特性</a></li>
+                <li>
+                    <a href="#%e6%80%a7%e8%83%bd" aria-label="性能">性能</a></li>
+                <li>
+                    <a href="#isoosi-%e6%a8%a1%e5%9e%8b" aria-label="ISO/OSI 模型">ISO/OSI 模型</a></li>
+                <li>
+                    <a href="#%e7%bd%91%e7%bb%9c%e7%bb%84%e6%88%90" aria-label="网络组成">网络组成</a><ul>
+                        
+                <li>
+                    <a href="#%e4%b8%bb%e7%ab%99" aria-label="主站">主站</a></li>
+                <li>
+                    <a href="#%e4%bb%8e%e7%ab%99" aria-label="从站">从站</a></li>
+                <li>
+                    <a href="#%e6%8b%93%e6%89%91%e7%bb%93%e6%9e%84" aria-label="拓扑结构">拓扑结构</a></li>
+                <li>
+                    <a href="#%e8%8a%82%e7%82%b9%e4%b8%aa%e6%95%b0" aria-label="节点个数">节点个数</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e5%af%bb%e5%9d%80%e6%96%b9%e5%bc%8f" aria-label="寻址方式">寻址方式</a><ul>
+                        
+                <li>
+                    <a href="#%e7%bd%91%e6%ae%b5%e5%af%bb%e5%9d%80" aria-label="网段寻址">网段寻址</a><ul>
+                        
+                <li>
+                    <a href="#%e7%9b%b4%e6%8e%a5%e6%a8%a1%e5%bc%8f%e6%97%a0%e4%ba%a4%e6%8d%a2%e6%9c%ba" aria-label="直接模式（无交换机）">直接模式（无交换机）</a></li>
+                <li>
+                    <a href="#%e5%bc%80%e6%94%be%e6%a8%a1%e5%bc%8f" aria-label="开放模式">开放模式</a></li></ul>
+                </li>
+                <li>
+                    <a href="#%e6%ae%b5%e5%86%85%e5%af%bb%e5%9d%80" aria-label="段内寻址">段内寻址</a><ul>
+                        
+                <li>
+                    <a href="#%e8%87%aa%e5%a2%9e%e9%87%8f%e5%af%bb%e5%9d%80auto-increment-addressing" aria-label="自增量寻址（Auto Increment Addressing）">自增量寻址（Auto Increment Addressing）</a></li>
+                <li>
+                    <a href="#%e5%9b%ba%e5%ae%9a%e5%af%bb%e5%9d%80fixed-addressing" aria-label="固定寻址（Fixed Addressing）">固定寻址（Fixed Addressing）</a></li>
+                <li>
+                    <a href="#%e9%80%bb%e8%be%91%e5%af%bb%e5%9d%80logical-addressing" aria-label="逻辑寻址（Logical Addressing）">逻辑寻址（Logical Addressing）</a></li>
+                <li>
+                    <a href="#%e5%85%b6%e4%bb%96" aria-label="其他">其他</a></li></ul>
+                </li></ul>
+                </li>
+                <li>
+                    <a href="#%e9%ab%98%e5%8f%af%e9%9d%a0%e6%80%a7%e5%86%97%e4%bd%99" aria-label="高可靠性、冗余">高可靠性、冗余</a></li>
+                <li>
+                    <a href="#%e5%ad%98%e5%82%a8%e5%90%8c%e6%ad%a5%e7%ae%a1%e7%90%86syncmanager" aria-label="存储同步管理（SyncManager）">存储同步管理（SyncManager）</a></li>
+                <li>
+                    <a href="#%e7%8e%b0%e5%9c%ba%e6%80%bb%e7%ba%bf%e5%86%85%e5%ad%98%e7%ae%a1%e7%90%86%e5%8d%95%e5%85%83fmmu" aria-label="现场总线内存管理单元（FMMU）">现场总线内存管理单元（FMMU）</a></li>
+                <li>
+                    <a href="#%e5%88%86%e5%b8%83%e6%97%b6%e9%92%9fdistributed-clock" aria-label="分布时钟（Distributed Clock）">分布时钟（Distributed Clock）</a><ul>
+                        
+                <li>
+                    <a href="#%e6%8f%8f%e8%bf%b0" aria-label="描述">描述</a></li>
+                <li>
+                    <a href="#%e7%b3%bb%e7%bb%9f%e6%97%b6%e9%97%b4" aria-label="系统时间">系统时间</a></li>
+                <li>
+                    <a href="#%e5%8f%82%e8%80%83%e6%97%b6%e9%92%9f%e5%92%8c%e4%bb%8e%e6%97%b6%e9%92%9f" aria-label="参考时钟和从时钟">参考时钟和从时钟</a></li>
+                <li>
+                    <a href="#%e4%b8%bb%e7%ab%99%e6%97%b6%e9%92%9f" aria-label="主站时钟">主站时钟</a></li>
+                <li>
+                    <a href="#%e6%9c%ac%e5%9c%b0%e6%97%b6%e9%92%9f%e5%85%b6%e5%88%9d%e5%a7%8b%e5%81%8f%e7%a7%bb%e9%87%8f%e5%92%8c%e6%97%b6%e9%92%9f%e6%bc%82%e7%a7%bb" aria-label="本地时钟、其初始偏移量和时钟漂移">本地时钟、其初始偏移量和时钟漂移</a></li>
+                <li>
+                    <a href="#%e6%9c%ac%e5%9c%b0%e7%b3%bb%e7%bb%9f%e6%97%b6%e9%97%b4" aria-label="本地系统时间">本地系统时间</a></li>
+                <li>
+                    <a href="#%e4%bc%a0%e8%be%93%e5%bb%b6%e6%97%b6" aria-label="传输延时">传输延时</a></li></ul>
+                </li>
+                <li>
+                    <a href="#tbd" aria-label="TBD">TBD</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h2 id="特性">特性<a hidden class="anchor" aria-hidden="true" href="#特性">#</a></h2>
+<p>EtherCAT（以太网控制自动化技术）是一个以以太网为基础的开放架构的现场总线系统，EtherCAT名称中的CAT为Control Automation Technology（控制自动化技术）首字母的缩写。最初由德国倍福自动化有限公司(Beckhoff Automation GmbH) 研发。EtherCAT为系统的实时性能和拓扑的灵活性树立了新的标准，同时，它还符合甚至降低了现场总线的使用成本。EtherCAT的特点还包括高精度设备同步，可选线缆冗余，和功能性安全协议(SIL3)。</p>
+<!-- raw HTML omitted -->
+<p><!-- raw HTML omitted --></p>
+<h2 id="性能">性能<a hidden class="anchor" aria-hidden="true" href="#性能">#</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">过程数据</th>
+<th style="text-align:left">更新时间</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">265 个分布式数字 I/O 量</td>
+<td style="text-align:left">11 us ＝ 0.01 ms</td>
+</tr>
+<tr>
+<td style="text-align:left">1000 个分布式数字 I/O 量</td>
+<td style="text-align:left">30 us</td>
+</tr>
+<tr>
+<td style="text-align:left">200 个 16 位的模拟 I/O 量</td>
+<td style="text-align:left">50 us &lt;&ndash;&gt; 20 kHz</td>
+</tr>
+<tr>
+<td style="text-align:left">100 个包含 8 字节输入输出数据的伺服轴</td>
+<td style="text-align:left">100 us</td>
+</tr>
+<tr>
+<td style="text-align:left">1 个现场总线网关（1486 字节的输入和 1486字节的输出数据）</td>
+<td style="text-align:left">150 us</td>
+</tr>
+</tbody>
+</table>
+<h2 id="isoosi-模型">ISO/OSI 模型<a hidden class="anchor" aria-hidden="true" href="#isoosi-模型">#</a></h2>
+<p>在标准以太网的七层 OSI 模型中 EtherCAT 只定义了物理层、数据链路层和应用层这三层协议（如下图）。</p>
+<p><img loading="lazy" src="ISO_OSI_Model_for_EtherCAT.png" alt="ISO_OSI_Model_for_EtherCAT"  />
+</p>
+<!-- raw HTML omitted -->
+<p><img loading="lazy" src="OSIStructure.png" alt="OSIStructure"  />
+</p>
+<h2 id="网络组成">网络组成<a hidden class="anchor" aria-hidden="true" href="#网络组成">#</a></h2>
+<p>EtherCAT 是主从式的结构。</p>
+<h3 id="主站">主站<a hidden class="anchor" aria-hidden="true" href="#主站">#</a></h3>
+<p>EtherCAT 主站使用标准的以太网 MAC。</p>
+<h3 id="从站">从站<a hidden class="anchor" aria-hidden="true" href="#从站">#</a></h3>
+<p>EtherCAT 从站需要使用特殊的硬件芯片（EtherCAT Slave Controller）来达到微秒级周期时间的实时性能。从站不需要微处理器就可以实现 EtherCAT 通信。可以通过 I/O 接口实现的简单设备可以只由 ESC 和其下的 PHY，变压器和 RJ45 接头组成。给从站的过程数据接口是32位的I/O接口。这种从站没有可配置的参数，所以不需要软件或邮箱协议。更复杂的可配置从站有使用一个微处理器。</p>
+<p><img loading="lazy" src="SlaveStructure.png" alt="SlaveStructure"  />
+</p>
+<p>在报文经过从站时， ESC 从报文中提取发送给自己的输出命令数据并将其存储到内部存储区，输入数据从内部存储区又被写到相应的子报文中。数据的提取和插入都是由数据链路层硬件完成的。</p>
+<ul>
+<li>从站可以最多有 4 个 EtherCAT 端口。</li>
+<li>如果有一个端口是关闭的，那么控制器会自动转发到下一个端口。端口可以由连接自动打开或关闭，写可以通过 EtherCAT 命令修改。</li>
+<li>EtherCAT 帧处理和转发顺序由逻辑端口配置（如下图）。</li>
+</ul>
+<p><img loading="lazy" src="PortConfigure.png" alt="PortConfigure"  />
+</p>
+<!-- raw HTML omitted -->
+<p><img loading="lazy" src="AutoForwarder.png" alt="AutoForwarder"  />
+</p>
+<h3 id="拓扑结构">拓扑结构<a hidden class="anchor" aria-hidden="true" href="#拓扑结构">#</a></h3>
+<p>EtherCAT 支持几乎所有拓扑结构。因此，源于现场总线的总线形结构也可用于以太网。将总线和分支结构相结合特别有助于系统布线。所有接口都位于耦合器上，无需使用附加交换机。</p>
+<!-- raw HTML omitted -->
+<p><img loading="lazy" src="FramePath.jpg" alt="FramePath"  />
+</p>
+<p>黄色的实线为以太网线缆，绿色虚线为 EtherCAT 帧的路径。</p>
+<p>所有的数据帧都被第一个从站设备转发到后续的节点，最后一个从站设备将数据帧返回到主站。</p>
+<h3 id="节点个数">节点个数<a hidden class="anchor" aria-hidden="true" href="#节点个数">#</a></h3>
+<p>EtherCAT 网络最多可以连接 65535 个设备。</p>
+<h2 id="寻址方式">寻址方式<a hidden class="anchor" aria-hidden="true" href="#寻址方式">#</a></h2>
+<!-- raw HTML omitted -->
+<p><img loading="lazy" src="AddressingOverview.png" alt="AddressingOverview"  />
+</p>
+<p>如上图，一个 EtherCAT 网段相当于一个以太网设备，主站首先使用以太网数据帧头的 MAC 地址寻址到网段，然后使用 EtherCAT 子报文头中的地址寻址到段内设备。</p>
+<h3 id="网段寻址">网段寻址<a hidden class="anchor" aria-hidden="true" href="#网段寻址">#</a></h3>
+<h4 id="直接模式无交换机">直接模式（无交换机）<a hidden class="anchor" aria-hidden="true" href="#直接模式无交换机">#</a></h4>
+<p>一个 EtherCAT 网段直接连接到主站设备的标准以太网口（如下图），此时主站使用广播 MAC 地址寻址，帧报文中目的 MAC 地址为 FF-FF-FF-FF-FF-FF。</p>
+<p><img loading="lazy" src="DirectMode.png" alt="DirectMode"  />
+</p>
+<h4 id="开放模式">开放模式<a hidden class="anchor" aria-hidden="true" href="#开放模式">#</a></h4>
+<p>EtherCAT 网段连接到以太网交换机上（如下图），我们就有多个网段，此时每个网段都需要一个 MAC 地址，主站发送的 EtherCAT 数据帧中目的地址是它所控制的网段的 MAC 地址。</p>
+<p>EtherCAT 网段中第一个从站设备有一个 ISO/IEC 8802.3 的 MAC 地址，这个地址表示了整个网段，这个从站称为段地址从站，它能够交换帧内的目的地址区和源地址区。</p>
+<p><img loading="lazy" src="OpenMode.png" alt="OpenMode"  />
+</p>
+<h3 id="段内寻址">段内寻址<a hidden class="anchor" aria-hidden="true" href="#段内寻址">#</a></h3>
+<p>段内寻址指的是当我们寻址到一个网段中后，改网段中的具体的设备如何寻址，EtherCAT 有以下几种方式。</p>
+<h4 id="自增量寻址auto-increment-addressing">自增量寻址（Auto Increment Addressing）<a hidden class="anchor" aria-hidden="true" href="#自增量寻址auto-increment-addressing">#</a></h4>
+<p>自增量寻址必须只能在 EtherCAT 系统启动的时候用来扫描总线或者偶尔检测到新设备的时候。在经过自增量寻址之后主站会给每个从站分配一个固定的地址，以便用于固定地址寻址。</p>
+<p>特点：</p>
+<ul>
+<li>每个从站根据位置分配一个十六位的负数自增量地址.</li>
+<li>当所读取的从站地址等于零时将被处理。</li>
+<li>每次从站地址加一</li>
+<li>偏移地址存储在设备的内存空间中。</li>
+<li>通常用于扫描硬件的配置信息。</li>
+</ul>
+<p><img loading="lazy" src="AutoIncrement.png" alt="AutoIncrement"  />
+</p>
+<h4 id="固定寻址fixed-addressing">固定寻址（Fixed Addressing）<a hidden class="anchor" aria-hidden="true" href="#固定寻址fixed-addressing">#</a></h4>
+<p>固定地址寻址一般用于主站与从站以邮箱方式的通信中（<strong>非周期性</strong>数据通信在 EtherCAT 中称为邮箱数据通信），在邮箱方式通信的时候 EtherCAT 主站根据从站的固定地址寻址到所要交换数据的从站，数据只在两者之间进行交换，适用于主站与某一个从站交换相对较大的数据。</p>
+<p>特点：</p>
+<ul>
+<li>每个从站有一个固定的地址（16 bit 所以最大节点数为 65535）</li>
+<li>通常在硬件配置扫描的过程中被分配。</li>
+<li>与从站的位置无关</li>
+<li>当断电后固定地址丢失</li>
+</ul>
+<p><img loading="lazy" src="FixedAddressing.png" alt="FixedAddressing"  />
+</p>
+<h4 id="逻辑寻址logical-addressing">逻辑寻址（Logical Addressing）<a hidden class="anchor" aria-hidden="true" href="#逻辑寻址logical-addressing">#</a></h4>
+<p>逻辑寻址一般用在过程数据的通信过程中（<strong>周期性</strong>），每个从站的物理地址通过 FMMU（Fieldbus Memory Management Unit） 被映射到一个指定的逻辑地址当中。这样做的好处是主站想要操作某一个从站时可以只操作固定的逻辑地址而不必知道所操作的逻辑地址所对应的从站地址，这样就大大减轻了控制系统的负担，加快了相应的速度。</p>
+<p><img loading="lazy" src="LogicAddressing.png" alt="LogicAddressing.png"  />
+</p>
+<h4 id="其他">其他<a hidden class="anchor" aria-hidden="true" href="#其他">#</a></h4>
+<p>EtherCAT 设备可以有两个配置的地址，一个是由主站分配（Configured Station Address），另一个是存储在 ESC EEPROM 中并且能由从站应用改写（Configured Station Alias Address）。主站分配的地址从站不能修改，存储在 EEPROM 中的地址只在第一次上电或者复位的时候装载。</p>
+<p>EtherCAT 主站一开始通过自增量寻址访问各个从站并分配固定地址，接下来通过固定寻址访问配置寄存器（非周期性），通过逻辑寻址访问过程数据（周期性）。</p>
+<h2 id="高可靠性冗余">高可靠性、冗余<a hidden class="anchor" aria-hidden="true" href="#高可靠性冗余">#</a></h2>
+<p>仅需在主站设备端增加使用一个标准的以太网端口（无需专用网卡或接口），并将单一的电缆从总线型拓扑结构转变为环型拓扑结构即可增加冗余特性（见下图）。当设备或电缆发生故障时，也仅需一个周期即可完成切换。因此，即使是针对运动控制要求的应用，电缆出现故障时也不会有任何问题。EtherCAT也支持热备份的主站冗余。由于在环路中断时EtherCAT从站控制器芯片将立刻自动返回数据帧，一个设备的失败不会导致整个网络的瘫痪。例如，拖链设备可以配置为分支拓扑以防线缆断开。</p>
+<p><img loading="lazy" src="ethercatredundancy.png" alt="REDUNDANCY"  />
+</p>
+<h2 id="存储同步管理syncmanager">存储同步管理（SyncManager）<a hidden class="anchor" aria-hidden="true" href="#存储同步管理syncmanager">#</a></h2>
+<p>ESC 使用了存储同步管理通道 SM（SyncManager）来保证主站与本地应用数据交换的一致性和安全性，并在数据状态改变时产生中断来通知对方。SM 通道把存储空间组织为一定大小的缓存区，由硬件控制对缓存区的访问。缓存区的数量和数据交换方向可配置。<strong>SM 由主站进行配置</strong>，</p>
+<p>必须从起始地址开始操作一个缓存区，否则操作被拒绝。操作其实地址后，就可以操作整个缓存区。允许再次操作其实地址，并且可以分多次操作。操作缓存区的结束地址表示缓存区操作结束，随后缓存区状态改变，同时可以产生一个中断信号或看门狗触发脉冲。不允许在一个数据帧内两次操作结束地址。</p>
+<p>EtherCAT 定义了两种 SM 运行模式：</p>
+<p>1）缓存类型（常用于过程数据通信）</p>
+<ul>
+<li>使用 3 个缓存区保证可以随时接收和交付最新的数据；</li>
+<li>经常有一个可写入的空闲缓存区；</li>
+<li>在第一次写入之后，经常有一个连续可读的数据缓存区。</li>
+</ul>
+<p>2）邮箱类型</p>
+<ul>
+<li>使用一个缓存区，支持握手机制；</li>
+<li>对数据溢出产生保护；</li>
+<li>只有写入新数据才可以进行成功的读操作；</li>
+<li>只有成功读取之后才允许再次写入。</li>
+</ul>
+<p>P65</p>
+<h2 id="现场总线内存管理单元fmmu">现场总线内存管理单元（FMMU）<a hidden class="anchor" aria-hidden="true" href="#现场总线内存管理单元fmmu">#</a></h2>
+<p>逻辑寻址时，从站地址并不是单独定义的，而是使用寻址段内 4 GByte 逻辑地址空间中的一段区域。报文内的 32 位地址区作为整体的数据逻辑地址完成设备的逻辑寻址。</p>
+<p>逻辑寻址由 FMMU 实现，FMMU 功能位于每个 ESC 内部，将从站本地物理存储地址映射到网段内逻辑地址。</p>
+<p>FMMU 单元由主站设备配置，并在数据链路启动过程中传送给从站设备。</p>
+<!-- raw HTML omitted -->
+<table>
+<thead>
+<tr>
+<th style="text-align:center">FMMU 配置寄存器</th>
+<th style="text-align:center">数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">数据逻辑起始地址</td>
+<td style="text-align:center">0x00014711</td>
+</tr>
+<tr>
+<td style="text-align:center">数据长度（字节数，按跨字节计算）</td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">数据逻辑起始位</td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center">数据逻辑终止位</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">从站物理内存起始地址</td>
+<td style="text-align:center">0x0F01</td>
+</tr>
+<tr>
+<td style="text-align:center">物理内存起始位</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">操作类型（1：只读，2：只写，3：读写）</td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center">激活（使能）</td>
+<td style="text-align:center">1</td>
+</tr>
+</tbody>
+</table>
+<p><img loading="lazy" src="mapping.png" alt="mapping"  />
+</p>
+<p>从站设备收到一个数据逻辑寻址的 EtherCAT 子报文时，检查是否有 FMMU 单元地址匹配。如果有，它将输入类型数据插入到 EtherCAT 子报文数据区的对应位置，以及从 EtherCAT 子报文数据区的对应位置抽取输出类型数据。使用逻辑寻址可以灵活地组织控制系统，优化系统结构。逻辑寻址方式特别适用于传输或交换周期性过程数据。 FMMU 操作具有以下功能特点：</p>
+<ul>
+<li>每个数据逻辑地址字节只允许被一个 FMMU 读和另一个 FMMU 写操作，或被同一个 FMMU 进行读写交换操作；</li>
+<li>对一个逻辑地址的读写操作与使用一个 FMMU 读和另一个 FMMU 写操作具有相同的结果；</li>
+<li>按位读写操作不影响报文中没有被映射到的其他位，因此允许将几个从站 ECS 中的位数据映射到主站的同一个逻辑字节；</li>
+<li>读写一个未配置的逻辑地址空间不会改变其内容。</li>
+</ul>
+<h2 id="分布时钟distributed-clock">分布时钟（Distributed Clock）<a hidden class="anchor" aria-hidden="true" href="#分布时钟distributed-clock">#</a></h2>
+<p>分布时钟可以使所有 EtherCAT 设备使用相同的系统时钟，从而控制各设备任务的同步执行。从站设备可以根据同步的系统时间产生同步信号，用于中断控制或触发数字量输入输出。支持分布式时钟的从站称为 DC 从站。分布式时钟具有以下功能：</p>
+<ul>
+<li>实现从站之间时钟同步；</li>
+<li>为主站提供同步时钟；</li>
+<li>产生同步的输出信号 SYNC；</li>
+<li>为输入事件产生精确的时间标记；</li>
+<li>产生同步的中断；</li>
+<li>同步更新数字量输出；</li>
+<li>同步采用数字量输入。</li>
+</ul>
+<h3 id="描述">描述<a hidden class="anchor" aria-hidden="true" href="#描述">#</a></h3>
+<p>分布时钟机制使所有的从站都同步于一个参考时钟。主站连接的第一个具有分布时钟功能的从站作为参考时钟，以参考时钟来同步其他设备和主站的从时钟。为了实现精确的时钟同步控制，必须测量和计算数据传输延时和本地时钟偏移，并补偿本地时钟的漂移。同步时钟涉及到如下 6 个时间概念：</p>
+<h3 id="系统时间">系统时间<a hidden class="anchor" aria-hidden="true" href="#系统时间">#</a></h3>
+<p>系统时间是分布时钟使用的系统计时。系统时间从 2000 年 1 月 1 日零点开始，使用 64 位二进制变量表示，单位为纳秒（ns），最大可以计时 500 年。也可以使用 32 位二进制变量表示，32 位时间值最大可以表示 4.2 s，通常用于通信和时间标记。</p>
+<h3 id="参考时钟和从时钟">参考时钟和从时钟<a hidden class="anchor" aria-hidden="true" href="#参考时钟和从时钟">#</a></h3>
+<p>EtherCAT 协议规定主站连接的第一个具有分布时钟功能的从站作为参考时钟，其他从站的时钟称为从时钟。参考时钟被用于同步其他从站设备和主站时钟。参考时钟提供 EtherCAT 系统时间。</p>
+<h3 id="主站时钟">主站时钟<a hidden class="anchor" aria-hidden="true" href="#主站时钟">#</a></h3>
+<p>EtherCAT 主站也具有计时功能，称为主站时钟。主站时钟可以在分布时钟系统中作为从时钟被同步。在初始化阶段，主站可以按照系统时间的格式发送主站时间给参考时钟从站，使分布时钟使用系统时间计时。</p>
+<h3 id="本地时钟其初始偏移量和时钟漂移">本地时钟、其初始偏移量和时钟漂移<a hidden class="anchor" aria-hidden="true" href="#本地时钟其初始偏移量和时钟漂移">#</a></h3>
+<p>每一个 DC 从站都有本地时钟，本地时钟独立运行，使用本地时钟信号计时。系统启动时，各从站的本地时钟和参考时钟之间有一定的差值，称为时钟初始偏移量。在运行过程中，由于参考时钟和 DC 从站时钟使用各自的时钟源等原因，它们的计时周期存在一定的漂移，这将导致时钟运行不同步，本地时钟产生漂移。因此，必须对时钟初始偏移和时钟漂移都进行补偿。</p>
+<h3 id="本地系统时间">本地系统时间<a hidden class="anchor" aria-hidden="true" href="#本地系统时间">#</a></h3>
+<p>每个 DC 从站的本地时钟经过补偿和同步之后都产生了一个本地系统时间，分布时钟同步机制就是使各个从站的本地系统时间保持一致。参考时钟也是相应从站的本地系统时钟。</p>
+<h3 id="传输延时">传输延时<a hidden class="anchor" aria-hidden="true" href="#传输延时">#</a></h3>
+<p>数据帧在从站时间传输时会产生一定的延时。其中包括设备内部和物理连接延时。所以在同步从时钟时，应该考虑参考时钟与各个从时钟之间的传输延时。</p>
+<h2 id="tbd">TBD<a hidden class="anchor" aria-hidden="true" href="#tbd">#</a></h2>
+<p>FMMU
+EtherCAT 帧解析
+EtherCAT 命令
+应用层协议
+分布式时钟\如何同步IO
+模块化的设备概要文件
+syncmanager7683</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://lectoraatmechatronica.wikispaces.com/file/view/EtherCAT+communication.pdf">EtherCAT communication</a></li>
+<li><a href="https://www.ethercat.org/cn/technology.html">EtherCAT - 以太网现场总线</a></li>
+<li>《工业以太网现场总线 EtherCAT 驱动程序设计及应用》- 郇极、刘艳红</li>
+</ul>
+<hr>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://tinyx.me/tags/EtherCAT/">EtherCAT</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://tinyx.me/post/Running-headless-vm/">
+    <span class="title">« Prev Page</span>
+    <br>
+    <span>建立一个便捷高效的嵌入式 Linux 开发环境</span>
+  </a>
+  <a class="next" href="https://tinyx.me/post/Setup-TwinCat/">
+    <span class="title">Next Page »</span>
+    <br>
+    <span>利用 TwinCAT 3 搭建 EtherCAT 主站环境</span>
+  </a>
+</nav>
+
+  </footer><div id="utter-container"></div>
+  <script src="https://utteranc.es/client.js"
+      repo= 'JesseGuoX/hugoblogtalks'
+      issue-term= "pathname"
+      theme= ''
+      crossorigin= "anonymous"
+      async>
+  </script>
+</article>
+    </main>
+    
+<footer class="footer">
+    <span>&copy; 2022 <a href="https://tinyx.me">TinyX</a></span>
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://git.io/hugopapermod" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
