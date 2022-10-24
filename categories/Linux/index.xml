@@ -9,7 +9,20 @@
       <link>https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
     </image>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sat, 23 Jan 2016 22:16:55 +0000</lastBuildDate><atom:link href="https://tinyx.me/categories/Linux/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 24 Oct 2022 16:25:06 +0800</lastBuildDate><atom:link href="https://tinyx.me/categories/Linux/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Linux设备使用aplay无法播放声音</title>
+      <link>https://tinyx.me/post/aplay/</link>
+      <pubDate>Mon, 24 Oct 2022 16:25:06 +0800</pubDate>
+      
+      <guid>https://tinyx.me/post/aplay/</guid>
+      <description>现象描述 嵌入式设备中有应用程序使用aplay播放音频，代码如下：
+system(&amp;#34;aplay /tmp/audio.wav&amp;#34;); 其中audio.wav已经由tts程序生成；
+应用会在一些情况下无法播放音频，并且通过应用程序调用的aplay进程一直存在，但是在shell手动输入命令aplay /tmp/audio.wav 则可以正常播放；
+使用strace跟踪该aplay进程如下:
+lstat64(&amp;#34;/tmp/pulse-PKdhtXMmr18n&amp;#34;, 0xbeeae8c8) = -1 ENOENT (No such file or directory) umask(077) = 022 mkdir(&amp;#34;/tmp/pulse-uuANIccKO515&amp;#34;, 0700) = 0 umask(022) = 077 symlink(&amp;#34;/tmp/pulse-uuANIccKO515&amp;#34;, &amp;#34;/home/root/.config/pulse/e239376a56f6468e8c604babcc95431d-runtime.tmp&amp;#34;) = -1 EEXIST (File exists) rmdir(&amp;#34;/tmp/pulse-uuANIccKO515&amp;#34;) = 0 clock_nanosleep_time64(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=13180137686533969536}, 0xbeeae878) = 0 readlink(&amp;#34;/home/root/.config/pulse/e239376a56f6468e8c604babcc95431d-runtime&amp;#34;, &amp;#34;/tmp/pulse-PKdhtXMmr18n&amp;#34;, 99) = 23 lstat64(&amp;#34;/tmp/pulse-PKdhtXMmr18n&amp;#34;, 0xbeeae8c8) = -1 ENOENT (No such file or directory) umask(077) = 022 mkdir(&amp;#34;/tmp/pulse-YR6cDgJaYrX3&amp;#34;, 0700) = 0 umask(022) = 077 symlink(&amp;#34;/tmp/pulse-YR6cDgJaYrX3&amp;#34;, &amp;#34;/home/root/.</description>
+    </item>
+    
     <item>
       <title>建立一个便捷高效的嵌入式 Linux 开发环境</title>
       <link>https://tinyx.me/post/Running-headless-vm/</link>

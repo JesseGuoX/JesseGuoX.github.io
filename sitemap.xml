@@ -3,7 +3,25 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://tinyx.me/categories/</loc>
-    <lastmod>2016-05-15T15:33:01+00:00</lastmod>
+    <lastmod>2022-10-24T16:25:06+08:00</lastmod>
+  </url><url>
+    <loc>https://tinyx.me/tags/Linux/</loc>
+    <lastmod>2022-10-24T16:25:06+08:00</lastmod>
+  </url><url>
+    <loc>https://tinyx.me/categories/Linux/</loc>
+    <lastmod>2022-10-24T16:25:06+08:00</lastmod>
+  </url><url>
+    <loc>https://tinyx.me/post/aplay/</loc>
+    <lastmod>2022-10-24T16:25:06+08:00</lastmod>
+  </url><url>
+    <loc>https://tinyx.me/post/</loc>
+    <lastmod>2022-10-24T16:25:06+08:00</lastmod>
+  </url><url>
+    <loc>https://tinyx.me/tags/</loc>
+    <lastmod>2022-10-24T16:25:06+08:00</lastmod>
+  </url><url>
+    <loc>https://tinyx.me/</loc>
+    <lastmod>2022-10-24T16:25:06+08:00</lastmod>
   </url><url>
     <loc>https://tinyx.me/tags/GFW/</loc>
     <lastmod>2016-05-15T15:33:01+00:00</lastmod>
@@ -14,16 +32,7 @@
     <loc>https://tinyx.me/categories/NAS/</loc>
     <lastmod>2016-05-15T15:33:01+00:00</lastmod>
   </url><url>
-    <loc>https://tinyx.me/post/</loc>
-    <lastmod>2016-05-15T15:33:01+00:00</lastmod>
-  </url><url>
     <loc>https://tinyx.me/post/NAS-Shadowsocks/</loc>
-    <lastmod>2016-05-15T15:33:01+00:00</lastmod>
-  </url><url>
-    <loc>https://tinyx.me/tags/</loc>
-    <lastmod>2016-05-15T15:33:01+00:00</lastmod>
-  </url><url>
-    <loc>https://tinyx.me/</loc>
     <lastmod>2016-05-15T15:33:01+00:00</lastmod>
   </url><url>
     <loc>https://tinyx.me/tags/BeagleBone/</loc>
@@ -33,9 +42,6 @@
     <lastmod>2016-04-17T15:06:55+00:00</lastmod>
   </url><url>
     <loc>https://tinyx.me/post/BBB-Prepare-booting/</loc>
-    <lastmod>2016-04-17T15:06:55+00:00</lastmod>
-  </url><url>
-    <loc>https://tinyx.me/tags/Linux/</loc>
     <lastmod>2016-04-17T15:06:55+00:00</lastmod>
   </url><url>
     <loc>https://tinyx.me/post/BeagleBone-Image/</loc>
@@ -52,9 +58,6 @@
   </url><url>
     <loc>https://tinyx.me/post/BBB0-Hardware/</loc>
     <lastmod>2016-03-05T20:44:52+00:00</lastmod>
-  </url><url>
-    <loc>https://tinyx.me/categories/Linux/</loc>
-    <lastmod>2016-01-23T22:16:55+00:00</lastmod>
   </url><url>
     <loc>https://tinyx.me/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/</loc>
     <lastmod>2016-01-23T22:16:55+00:00</lastmod>

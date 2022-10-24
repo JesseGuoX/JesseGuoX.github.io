@@ -5,11 +5,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
-<title>Linux | TinyX</title>
+<title>Posts | TinyX</title>
 <meta name="keywords" content="">
-<meta name="description" content="ExampleSite description">
+<meta name="description" content="Posts - TinyX">
 <meta name="author" content="X">
-<link rel="canonical" href="https://tinyx.me/tags/Linux/">
+<link rel="canonical" href="https://tinyx.me/post/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.min.48a18943c2fc15c38a372b8dde1f5e5dc0bc64fa6cb90f5a817d2f8c76b7f3ae.css" integrity="sha256-SKGJQ8L8FcOKNyuN3h9eXcC8ZPpsuQ9agX0vjHa3864=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
 <link rel="icon" type="image/png" sizes="16x16" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
@@ -18,7 +18,7 @@
 <link rel="mask-icon" href="https://tinyx.me/%3Clink%20/%20abs%20url%3E">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="https://tinyx.me/tags/Linux/index.xml">
+<link rel="alternate" type="application/rss+xml" href="https://tinyx.me/post/index.xml">
 <noscript>
     <style>
         #theme-toggle,
@@ -55,17 +55,32 @@
         }
 
     </style>
-</noscript><meta property="og:title" content="Linux" />
+</noscript><meta property="og:title" content="Posts" />
 <meta property="og:description" content="ExampleSite description" />
 <meta property="og:type" content="website" />
-<meta property="og:url" content="https://tinyx.me/tags/Linux/" /><meta property="og:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/><meta property="og:site_name" content="ExampleSite" />
+<meta property="og:url" content="https://tinyx.me/post/" /><meta property="og:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/><meta property="og:site_name" content="ExampleSite" />
 
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:image" content="https://tinyx.me/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E"/>
 
-<meta name="twitter:title" content="Linux"/>
+<meta name="twitter:title" content="Posts"/>
 <meta name="twitter:description" content="ExampleSite description"/>
 
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Posts",
+      "item": "https://tinyx.me/post/"
+    }
+  ]
+}
+</script>
 </head>
 
 <body class="list" id="top">
@@ -132,54 +147,29 @@
     </nav>
 </header>
 <main class="main"> 
-<header class="page-header"><div class="breadcrumbs"><a href="https://tinyx.me">Home</a>&nbsp;»&nbsp;<a href="https://tinyx.me/tags/">Tags</a></div>
-  <h1>Linux</h1>
+<header class="page-header"><div class="breadcrumbs"><a href="https://tinyx.me">Home</a></div>
+  <h1>Posts</h1>
 </header>
 
-<article class="post-entry tag-entry"> 
+<article class="post-entry"> 
   <header class="entry-header">
-    <h2>Linux设备使用aplay无法播放声音
+    <h2>如何解析 PROFINET 周期性数据帧
     </h2>
   </header>
   <section class="entry-content">
-    <p>现象描述 嵌入式设备中有应用程序使用aplay播放音频，代码如下：
-system(&#34;aplay /tmp/audio.wav&#34;); 其中audio.wav已经由tts程序生成；
-应用会在一些情况下无法播放音频，并且通过应用程序调用的aplay进程一直存在，但是在shell手动输入命令aplay /tmp/audio.wav 则可以正常播放；
-使用strace跟踪该aplay进程如下:
-lstat64(&#34;/tmp/pulse-PKdhtXMmr18n&#34;, 0xbeeae8c8) = -1 ENOENT (No such file or directory) umask(077) = 022 mkdir(&#34;/tmp/pulse-uuANIccKO515&#34;, 0700) = 0 umask(022) = 077 symlink(&#34;/tmp/pulse-uuANIccKO515&#34;, &#34;/home/root/.config/pulse/e239376a56f6468e8c604babcc95431d-runtime.tmp&#34;) = -1 EEXIST (File exists) rmdir(&#34;/tmp/pulse-uuANIccKO515&#34;) = 0 clock_nanosleep_time64(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=13180137686533969536}, 0xbeeae878) = 0 readlink(&#34;/home/root/.config/pulse/e239376a56f6468e8c604babcc95431d-runtime&#34;, &#34;/tmp/pulse-PKdhtXMmr18n&#34;, 99) = 23 lstat64(&#34;/tmp/pulse-PKdhtXMmr18n&#34;, 0xbeeae8c8) = -1 ENOENT (No such file or directory) umask(077) = 022 mkdir(&#34;/tmp/pulse-YR6cDgJaYrX3&#34;, 0700) = 0 umask(022) = 077 symlink(&#34;/tmp/pulse-YR6cDgJaYrX3&#34;, &#34;/home/root/....</p>
+    <p> 原文：How to decode cyclic PROFINET frames?
+ 前言 IOPS IO Provider Status 表示 IO 数据的提供状态， 用来标识数据是否有效，避免应用建立一个另外的诊断信息请求，节省资源。
+IOCS IO Consumer Status 表示 IO 数据的消费状态。
+如何理解IOCS和IOPS...</p>
   </section>
-  <footer class="entry-footer"><span title='2022-10-24 16:25:06 +0800 CST'>October 24, 2022</span>&nbsp;·&nbsp;X</footer>
-  <a class="entry-link" aria-label="post link to Linux设备使用aplay无法播放声音" href="https://tinyx.me/post/aplay/"></a>
+  <footer class="entry-footer"><span title='2015-12-24 15:29:00 +0000 UTC'>December 24, 2015</span>&nbsp;·&nbsp;X</footer>
+  <a class="entry-link" aria-label="post link to 如何解析 PROFINET 周期性数据帧" href="https://tinyx.me/post/decode-PROFINET-frames/"></a>
 </article>
-
-<article class="post-entry tag-entry"> 
-  <header class="entry-header">
-    <h2>BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)
-    </h2>
-  </header>
-  <section class="entry-content">
-    <p>基于 Linux 3.8
-内核启动 BeagleBone Black 从零到一 (1 MLO、U-Boot) 这篇文章里讲到 U-Boot 启动之后会运行 uEnv.txt 文件里面 uenvcmd 指代的命令，我们也通常把加载镜像文件等命令写在这里。
-U-Boot 有很多方法能启动内核，通常使用的是 bootm 或者 bootz 命令：
-U-Boot# help bootz bootz - boot Linux zImage image from memory  Usage: bootz [addr [initrd[:size]] [fdt]]  - boot Linux zImage stored in memory  The argument &#39;initrd&#39; is optional and specifies the address  of the initrd in memory. The optional argument &#39;:size&#39; allows  specifying the size of RAW initrd....</p>
-  </section>
-  <footer class="entry-footer"><span title='2016-04-17 15:06:55 +0000 UTC'>April 17, 2016</span>&nbsp;·&nbsp;X</footer>
-  <a class="entry-link" aria-label="post link to BeagleBone Black 从零到一 (3 Linux 镜像、initramfs、Device Tree及根文件系统)" href="https://tinyx.me/post/BBB-Prepare-booting/"></a>
-</article>
-
-<article class="post-entry tag-entry"> 
-  <header class="entry-header">
-    <h2>建立一个便捷高效的嵌入式 Linux 开发环境
-    </h2>
-  </header>
-  <section class="entry-content">
-    <p>更新：2016-04-15
-0 前言 我们经常需要在 Linux 环境下进行嵌入式开发，但是目前又不能完全抛弃 Windows 或者 OS X，所以我们经常需要用虚拟机来搭建开发环境，但是虚拟机又很臃肿，而且如果配置不高的电脑会运行的很慢。有没有一种方便在各电脑间拷贝运行速度又很快的解决方案呢？当然是有的。以下是几种解决方案。
-...</p>
-  </section>
-  <footer class="entry-footer"><span title='2016-01-23 22:16:55 +0000 UTC'>January 23, 2016</span>&nbsp;·&nbsp;X</footer>
-  <a class="entry-link" aria-label="post link to 建立一个便捷高效的嵌入式 Linux 开发环境" href="https://tinyx.me/post/Running-headless-vm/"></a>
-</article>
+<footer class="page-footer">
+  <nav class="pagination">
+    <a class="prev" href="https://tinyx.me/post/">« Prev Page</a>
+  </nav>
+</footer>
     </main>
     
 <footer class="footer">

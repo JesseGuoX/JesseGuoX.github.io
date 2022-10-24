@@ -179,6 +179,22 @@
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2>Linux设备使用aplay无法播放声音
+    </h2>
+  </header>
+  <section class="entry-content">
+    <p>现象描述 嵌入式设备中有应用程序使用aplay播放音频，代码如下：
+system(&#34;aplay /tmp/audio.wav&#34;); 其中audio.wav已经由tts程序生成；
+应用会在一些情况下无法播放音频，并且通过应用程序调用的aplay进程一直存在，但是在shell手动输入命令aplay /tmp/audio.wav 则可以正常播放；
+使用strace跟踪该aplay进程如下:
+lstat64(&#34;/tmp/pulse-PKdhtXMmr18n&#34;, 0xbeeae8c8) = -1 ENOENT (No such file or directory) umask(077) = 022 mkdir(&#34;/tmp/pulse-uuANIccKO515&#34;, 0700) = 0 umask(022) = 077 symlink(&#34;/tmp/pulse-uuANIccKO515&#34;, &#34;/home/root/.config/pulse/e239376a56f6468e8c604babcc95431d-runtime.tmp&#34;) = -1 EEXIST (File exists) rmdir(&#34;/tmp/pulse-uuANIccKO515&#34;) = 0 clock_nanosleep_time64(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=13180137686533969536}, 0xbeeae878) = 0 readlink(&#34;/home/root/.config/pulse/e239376a56f6468e8c604babcc95431d-runtime&#34;, &#34;/tmp/pulse-PKdhtXMmr18n&#34;, 99) = 23 lstat64(&#34;/tmp/pulse-PKdhtXMmr18n&#34;, 0xbeeae8c8) = -1 ENOENT (No such file or directory) umask(077) = 022 mkdir(&#34;/tmp/pulse-YR6cDgJaYrX3&#34;, 0700) = 0 umask(022) = 077 symlink(&#34;/tmp/pulse-YR6cDgJaYrX3&#34;, &#34;/home/root/....</p>
+  </section>
+  <footer class="entry-footer"><span title='2022-10-24 16:25:06 +0800 CST'>October 24, 2022</span>&nbsp;·&nbsp;X</footer>
+  <a class="entry-link" aria-label="post link to Linux设备使用aplay无法播放声音" href="https://tinyx.me/post/aplay/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2>Synology DS216Play 安装 ShadowSocks
     </h2>
   </header>
@@ -319,21 +335,11 @@ ROM Code 有两个主要的功能：
   <footer class="entry-footer"><span title='2016-01-06 19:28:08 +0000 UTC'>January 6, 2016</span>&nbsp;·&nbsp;X</footer>
   <a class="entry-link" aria-label="post link to 利用 TwinCAT 3 搭建 EtherCAT 主站环境" href="https://tinyx.me/post/Setup-TwinCat/"></a>
 </article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2>如何解析 PROFINET 周期性数据帧
-    </h2>
-  </header>
-  <section class="entry-content">
-    <p> 原文：How to decode cyclic PROFINET frames?
- 前言 IOPS IO Provider Status 表示 IO 数据的提供状态， 用来标识数据是否有效，避免应用建立一个另外的诊断信息请求，节省资源。
-IOCS IO Consumer Status 表示 IO 数据的消费状态。
-如何理解IOCS和IOPS...</p>
-  </section>
-  <footer class="entry-footer"><span title='2015-12-24 15:29:00 +0000 UTC'>December 24, 2015</span>&nbsp;·&nbsp;X</footer>
-  <a class="entry-link" aria-label="post link to 如何解析 PROFINET 周期性数据帧" href="https://tinyx.me/post/decode-PROFINET-frames/"></a>
-</article>
+<footer class="page-footer">
+  <nav class="pagination">
+    <a class="next" href="https://tinyx.me/page/2/">Next Page »</a>
+  </nav>
+</footer>
     </main>
     
 <footer class="footer">

@@ -138,6 +138,22 @@
 
 <article class="post-entry tag-entry"> 
   <header class="entry-header">
+    <h2>Linux设备使用aplay无法播放声音
+    </h2>
+  </header>
+  <section class="entry-content">
+    <p>现象描述 嵌入式设备中有应用程序使用aplay播放音频，代码如下：
+system(&#34;aplay /tmp/audio.wav&#34;); 其中audio.wav已经由tts程序生成；
+应用会在一些情况下无法播放音频，并且通过应用程序调用的aplay进程一直存在，但是在shell手动输入命令aplay /tmp/audio.wav 则可以正常播放；
+使用strace跟踪该aplay进程如下:
+lstat64(&#34;/tmp/pulse-PKdhtXMmr18n&#34;, 0xbeeae8c8) = -1 ENOENT (No such file or directory) umask(077) = 022 mkdir(&#34;/tmp/pulse-uuANIccKO515&#34;, 0700) = 0 umask(022) = 077 symlink(&#34;/tmp/pulse-uuANIccKO515&#34;, &#34;/home/root/.config/pulse/e239376a56f6468e8c604babcc95431d-runtime.tmp&#34;) = -1 EEXIST (File exists) rmdir(&#34;/tmp/pulse-uuANIccKO515&#34;) = 0 clock_nanosleep_time64(CLOCK_REALTIME, 0, {tv_sec=0, tv_nsec=13180137686533969536}, 0xbeeae878) = 0 readlink(&#34;/home/root/.config/pulse/e239376a56f6468e8c604babcc95431d-runtime&#34;, &#34;/tmp/pulse-PKdhtXMmr18n&#34;, 99) = 23 lstat64(&#34;/tmp/pulse-PKdhtXMmr18n&#34;, 0xbeeae8c8) = -1 ENOENT (No such file or directory) umask(077) = 022 mkdir(&#34;/tmp/pulse-YR6cDgJaYrX3&#34;, 0700) = 0 umask(022) = 077 symlink(&#34;/tmp/pulse-YR6cDgJaYrX3&#34;, &#34;/home/root/....</p>
+  </section>
+  <footer class="entry-footer"><span title='2022-10-24 16:25:06 +0800 CST'>October 24, 2022</span>&nbsp;·&nbsp;X</footer>
+  <a class="entry-link" aria-label="post link to Linux设备使用aplay无法播放声音" href="https://tinyx.me/post/aplay/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
     <h2>建立一个便捷高效的嵌入式 Linux 开发环境
     </h2>
   </header>
