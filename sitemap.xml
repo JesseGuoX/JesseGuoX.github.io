@@ -1,102 +1,234 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
   <url>
     <loc>https://tinyx.me/categories/</loc>
     <lastmod>2022-10-24T16:25:06+08:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/Linux/</loc>
     <lastmod>2022-10-24T16:25:06+08:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/categories/Linux/</loc>
     <lastmod>2022-10-24T16:25:06+08:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/aplay/</loc>
     <lastmod>2022-10-24T16:25:06+08:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/</loc>
     <lastmod>2022-10-24T16:25:06+08:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/</loc>
     <lastmod>2022-10-24T16:25:06+08:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/</loc>
     <lastmod>2022-10-24T16:25:06+08:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/GFW/</loc>
     <lastmod>2016-05-15T15:33:01+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/NAS/</loc>
     <lastmod>2016-05-15T15:33:01+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/categories/NAS/</loc>
     <lastmod>2016-05-15T15:33:01+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/NAS-Shadowsocks/</loc>
     <lastmod>2016-05-15T15:33:01+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/BeagleBone/</loc>
     <lastmod>2016-04-17T15:06:55+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/categories/BeagleBone/</loc>
     <lastmod>2016-04-17T15:06:55+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/BBB-Prepare-booting/</loc>
     <lastmod>2016-04-17T15:06:55+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/BeagleBone-Image/</loc>
     <lastmod>2016-03-26T19:37:17+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/BBB-Uboot/</loc>
     <lastmod>2016-03-22T20:57:50+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/U-Boot/</loc>
     <lastmod>2016-03-22T20:57:50+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/BBB-bootmode/</loc>
     <lastmod>2016-03-09T19:56:06+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/BBB0-Hardware/</loc>
     <lastmod>2016-03-05T20:44:52+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/</loc>
     <lastmod>2016-01-23T22:16:55+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/Running-headless-vm/</loc>
     <lastmod>2016-01-23T22:16:55+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/EtherCAT/</loc>
     <lastmod>2016-01-10T14:51:58+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/categories/EtherCAT/</loc>
     <lastmod>2016-01-10T14:51:58+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/EtherCAT-Note/</loc>
     <lastmod>2016-01-10T14:51:58+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/TwinCAT/</loc>
     <lastmod>2016-01-06T19:28:08+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/Setup-TwinCat/</loc>
     <lastmod>2016-01-06T19:28:08+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/PROFINET/</loc>
     <lastmod>2015-12-24T15:29:00+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/categories/PROFINET/</loc>
     <lastmod>2015-12-24T15:29:00+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/post/decode-PROFINET-frames/</loc>
     <lastmod>2015-12-24T15:29:00+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/%E6%8A%80%E6%9C%AF/</loc>
     <lastmod>2015-12-24T15:29:00+00:00</lastmod>
-  </url><url>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
     <loc>https://tinyx.me/tags/%E7%BF%BB%E8%AF%91/</loc>
     <lastmod>2015-12-24T15:29:00+00:00</lastmod>
-  </url><url>
-    <loc>https://tinyx.me/archives/</loc>
-  </url><url>
-    <loc>https://tinyx.me/search/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
+  
+  <url>
+    <loc>https://tinyx.me/archives/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://tinyx.me/search/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
 </urlset>
