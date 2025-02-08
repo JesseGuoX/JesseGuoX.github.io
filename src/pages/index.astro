@@ -147,7 +147,7 @@ const work = await Promise.all(
       const user3 = "o";
       const domain = "gmail.com";
       const email = user + user2 + user3 + "@" + domain;
-      const emailLink = document.getElementById("contact-email");
+      const emailLink = document.getElementById("contact-email") as HTMLAnchorElement;
       if (emailLink) {
         emailLink.href = "mailto:" + email;
       }
