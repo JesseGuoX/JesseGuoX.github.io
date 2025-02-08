@@ -10,16 +10,16 @@ import { SITE, HOME, SOCIALS } from "@consts";
 const blog = (await getCollection("blog"))
   .filter(post => !post.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0,SITE.NUM_POSTS_ON_HOMEPAGE);
+  .slice(0, SITE.NUM_POSTS_ON_HOMEPAGE);
 
 const projects = (await getCollection("projects"))
   .filter(project => !project.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0,SITE.NUM_PROJECTS_ON_HOMEPAGE);
+  .slice(0, SITE.NUM_PROJECTS_ON_HOMEPAGE);
 
 const allwork = (await getCollection("work"))
   .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf())
-  .slice(0,SITE.NUM_WORKS_ON_HOMEPAGE);
+  .slice(0, SITE.NUM_WORKS_ON_HOMEPAGE);
 
 const work = await Promise.all(
   allwork.map(async (item) => {
@@ -27,38 +27,19 @@ const work = await Promise.all(
     return { ...item, Content };
   })
 );
-
 ---
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
     <h4 class="animate font-semibold text-black dark:text-white">
-      Hi, I'm Nano <span class="text-xl">👋🏻</span> 
+      Hi, I'm Jesse.👋 
     </h4>
     <div class="space-y-16">
       <section>
         <article class="space-y-4">
           <p class="animate">
-            I am a minimal, seo friendly, accessible portfolio and blog for developers. 
-            I am an even more lightweight version of my popular theme
-            <Link href="https://github.com/markhorn-dev/astro-sphere" aria-label="Astro Sphere on Github" external>
-              Astro Sphere
-            </Link>.
-            I have a lighthouse scores of 100 across the board for performance, 
-            accesibility, best practices and SEO.
-          </p>
-          <p class="animate">
-            I come packed with full type safety, a sitemap, an rss feed, markdown 
-            and mdx support (use components in your markdown) through astro integrations.
-            I am styled with tailwind and come preconfigured with light, dark and 
-            system/os theme preferences out of the box.
-          </p>
-          <p class="animate">
-            Visit
-            <Link href="https://github.com/markhorn-dev/astro-nano" aria-label="Astro Nano on Github" external>
-              Astro Nano on Github
-            </Link>
-            to fork the repository, read the docs or one-click deploy on Vercel or Netlify. 
+            Welcome to my site. I am an embedded software engineer.</br>
+            I'm simply putting my ideas out there, and I hope they ignite a spark of inspiration for you.
           </p>
         </article>
       </section>
@@ -135,7 +116,7 @@ const work = await Promise.all(
         <article>
           <p>
             If you want to get in touch with me about something or just to say hi,
-            reach out on social media or send me an email.
+            reach out on github or send me an email.
           </p>
         </article>
         <ul class="flex flex-wrap gap-2">
@@ -148,12 +129,28 @@ const work = await Promise.all(
             </li>
           ))}
           <li class="line-clamp-1">
-            <Link href={`mailto:${SITE.EMAIL}`} aria-label={`Email ${SITE.NAME}`}>
-              {SITE.EMAIL}
-            </Link>
+            {/*
+              利用客户端 JavaScript 拼接邮箱地址，生成的邮箱为 alix123@gmail.com，
+              链接文本固定显示为 “Email”，同时增加下划线显示（即使其他样式可能移除下划线）
+            */}
+            <a id="contact-email" aria-label="Email alix123" href="#" style="text-decoration: underline;">
+              Email
+            </a>
           </li>
         </ul>
       </section>
     </div>
+    <script>
+      // 使用拼接方法构造邮箱地址，防止爬虫直接抓取
+      const user = "jesse";
+      const user2 = "guo";
+      const user3 = "o";
+      const domain = "gmail.com";
+      const email = user + user2 + user3 + "@" + domain;
+      const emailLink = document.getElementById("contact-email");
+      if (emailLink) {
+        emailLink.href = "mailto:" + email;
+      }
+    </script>
   </Container>
 </PageLayout>
